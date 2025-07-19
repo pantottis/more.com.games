@@ -1,23 +1,23 @@
 window.QUIZ_CONFIG = {
     questions: [
         {
-            question: "What is the capital of France?",
-            options: ["London", "Berlin", "Paris", "Madrid"],
-            correct: 2
-        },
-        {
-            question: "Which planet is known as the Red Planet?",
-            options: ["Venus", "Mars", "Jupiter", "Saturn"],
+            question: "How many players are the National Teams registering in this competition?",
+            options: ["9", "12", "14", "16"],
             correct: 1
         },
         {
-            question: "What is 15 + 27?",
-            options: ["42", "41", "43", "40"],
+            question: "What is Giannis Antetokounmpo's jersey number?",
+            options: ["23", "10", "35", "95"],
+            correct: 2
+        },
+        {
+            question: "Which National team holds the record for the most wins in FIBA Competitions?",
+            options: ["USA", "Serbia", "Greece", "Spain"],
             correct: 0
         },
         {
-            question: "Who painted the Mona Lisa?",
-            options: ["Van Gogh", "Picasso", "Da Vinci", "Monet"],
+            question: "who invented the basketball hoop?",
+            options: ["Larry Bird", "John Logie Baird", "James Naismith", "Benjamin Franklin"],
             correct: 2
         },
         {
