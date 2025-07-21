@@ -7,7 +7,7 @@ window.QUIZ_CONFIG = {
         },
         {
             question: "What is Giannis Antetokounmpo's jersey number?",
-            options: ["23", "10", "35", "95"],
+            options: ["23", "10", "34", "95"],
             correct: 2
         },
         {
