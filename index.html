@@ -156,7 +156,7 @@
 
         .puzzle-container {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 2px;
             margin: 20px auto;
             width: 400px;
@@ -440,7 +440,7 @@
         let puzzleTimer = null;
         let basketballTimer = null;
         let basketballScore = 0;
-        let puzzleSize = 4;
+        let puzzleSize = 3;
         let puzzleGrid = [];
         let puzzleTimeLeft = 60;
         let puzzleTileImages = [];
@@ -699,7 +699,7 @@
                     quizScore++;
                 }
                 
-                const passed = quizScore >= 3;
+                const passed = quizScore == 5;
                 const stats = {
                     'Score': `${quizScore}/${QUIZ_CONFIG.questions.length}`,
                     'Percentage': `${Math.round((quizScore / QUIZ_CONFIG.questions.length) * 100)}%`
@@ -716,13 +716,13 @@
             
             try {
                 // Updated to match your file structure
-                const imageFiles = Array.from({length: 15}, (_, i) => `images/${i + 1}.jpg`);
+                const imageFiles = Array.from({length: 8}, (_, i) => `images/${i + 1}.jpg`);
                 
                 const loadPromises = imageFiles.map((filename, index) => {
                     return new Promise((resolve, reject) => {
                         const img = new Image();
                         img.onload = () => {
-                            console.log(`✅ Loaded tile ${index + 1}/15: ${filename}`);
+                            console.log(`✅ Loaded tile ${index + 1}/8: ${filename}`);
                             resolve(filename);
                         };
                         img.onerror = () => {
@@ -764,7 +764,7 @@
         function createFallbackTiles() {
             console.log('Creating fallback tiles...');
             puzzleTileImages = [];
-            for (let i = 1; i <= 15; i++) {
+            for (let i = 1; i <= 8; i++) {
                 puzzleTileImages.push(createFallbackTile(i));
             }
         }
@@ -774,7 +774,7 @@
             showScreen('puzzleGame');
             
             loadPuzzleTileImages().then((success) => {
-                if (success || puzzleTileImages.length === 15) {
+                if (success || puzzleTileImages.length === 8) {
                     console.log('✅ Initializing puzzle with basketball player tiles');
                     initializePuzzle();
                     startPuzzleTimer();
@@ -789,7 +789,7 @@
 
         function initializePuzzle() {
             puzzleGrid = [];
-            for (let i = 1; i <= 15; i++) {
+            for (let i = 1; i <= 8; i++) {
                 puzzleGrid.push(i);
             }
             puzzleGrid.push(null);
@@ -907,7 +907,7 @@
         }
 
         function startPuzzleTimer() {
-            puzzleTimeLeft = 60;
+            puzzleTimeLeft = 90;
             puzzleTimer = setInterval(() => {
                 puzzleTimeLeft--;
                 document.getElementById('puzzleTimer').textContent = `Time: ${puzzleTimeLeft}s`;
@@ -916,7 +916,7 @@
                     clearInterval(puzzleTimer);
                     const stats = {
                         'Result': 'Time expired',
-                        'Time Limit': '60 seconds'
+                        'Time Limit': '90 seconds'
                     };
                     
                     showGameResult('puzzle', false, stats);
