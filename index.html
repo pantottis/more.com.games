@@ -1217,6 +1217,12 @@
                 const country = document.getElementById('country').value.trim();
                 const termsAccepted = document.getElementById('termsCheckbox').checked;
 
+                if (name.toLowerCase() === 'admin') {
+                    document.getElementById('downloadEmailsBtn').style.display = 'inline-block';
+                } else {
+                    document.getElementById('downloadEmailsBtn').style.display = 'none';
+                }
+
                 const isValid = name && email && country && termsAccepted && this.isValidEmail(email);
                 
                 // Performance: Only update if state changed
@@ -1876,7 +1882,7 @@ class BasketballGame {
 
             checkAdminAccess() {
                 const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('isAdmin') === 'true') {
+                if (urlParams.get('isAdmin') === 'true' || urlParams.get('IsAdmin') === 'true' || urlParams.get('admin') === 'true') {
                     document.getElementById('downloadEmailsBtn').style.display = 'inline-block';
                 }
             }
