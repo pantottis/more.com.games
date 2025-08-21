@@ -18,1010 +18,1625 @@
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
     
+    <!-- Preload critical resources -->
+    <link rel="preload" href="quiz-config.js" as="script">
+    <link rel="preload" href="more.svg" as="image">
+    
     <style>
-        * {
+        /* CSS Custom Properties for Performance */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #8B5DFF 0%, #00D4FF 25%, #FFE066 75%, #FF6B8A 100%);
+            --primary-purple: #8B5DFF;
+            --primary-cyan: #00D4FF;
+            --primary-yellow: #FFE066;
+            --primary-pink: #FF6B8A;
+            --card-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Reset and Base Styles */
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--primary-gradient);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
             user-select: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
+        /* Performance: Use transform instead of changing layout properties */
         .container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: var(--card-shadow);
             max-width: 800px;
             width: 100%;
-            min-height: 600px;
+            transform: translateZ(0); /* Force GPU acceleration */
+            will-change: transform; /* Optimize for animations */
         }
 
+        /* Screen Management */
         .screen {
             display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
         }
 
         .screen.active {
             display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        h1, h2 {
-            color: #333;
+        /* Registration Screen Styles */
+        .more-logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-purple);
             text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
             margin-bottom: 8px;
-            color: #555;
-            font-weight: bold;
+            letter-spacing: -0.5px;
         }
 
-        input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
+        .registration-title {
             font-size: 16px;
-            transition: border-color 0.3s;
+            color: #666;
+            text-align: center;
+            margin-bottom: 32px;
+            font-weight: 400;
         }
 
-        input:focus {
+        .form-fields {
+            margin-bottom: 24px;
+        }
+
+        .text-field {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .text-field input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #E5E7EB;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            background: #FAFAFA;
+            transition: var(--transition);
             outline: none;
-            border-color: #667eea;
         }
 
-        button {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+        .text-field input:focus {
+            border-color: var(--primary-purple);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(139, 93, 255, 0.1);
+        }
+
+        .text-field input::placeholder {
+            color: #9CA3AF;
+        }
+
+        /* Terms Section */
+        .terms-section {
+            margin-bottom: 32px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin: 0;
+            cursor: pointer;
+            accent-color: var(--primary-purple);
+        }
+
+        .terms-text {
+            color: #6B7280;
+        }
+
+        .terms-link {
+            color: var(--primary-purple);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .terms-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Register Button */
+        .register-button {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-purple);
             color: white;
             border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
+            border-radius: var(--border-radius);
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
-            margin: 10px;
+            transition: var(--transition);
+            transform: translateZ(0);
         }
 
-        button:hover {
+        .register-button:enabled:hover {
+            background: #7C4EE6;
             transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(139, 93, 255, 0.3);
+        }
+
+        .register-button:disabled {
+            background: #D1D5DB;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.5;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            color: var(--primary-purple);
+            font-weight: 500;
+            margin-top: 16px;
+            display: none;
+        }
+
+        /* Error Display */
+        .error-display {
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            color: #DC2626;
+            padding: 12px 16px;
+            border-radius: var(--border-radius);
+            margin-bottom: 16px;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* Game Selection Styles */
+        .game-selection-title {
+            font-size: 24px;
+            font-weight: 400;
+            color: #1F2937;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .game-selection-subtitle {
+            font-size: 16px;
+            color: #6B7280;
+            text-align: center;
+            margin-bottom: 40px;
+            font-weight: 400;
         }
 
         .game-selection {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 24px;
         }
 
         .game-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
+            background: white;
+            border: 2px solid #E5E7EB;
+            padding: 32px 20px 24px 20px;
+            border-radius: var(--border-radius);
             text-align: center;
             cursor: pointer;
-            transition: transform 0.3s;
+            transition: var(--transition);
+            transform: translateZ(0);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .game-card:hover {
-            transform: scale(1.05);
+            border-color: var(--primary-purple);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(139, 93, 255, 0.15);
+        }
+
+        .game-icon {
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-card h3 {
+            color: #1F2937;
+            margin-bottom: 8px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .game-card p {
+            color: #6B7280;
+            font-size: 14px;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 32px 24px;
+                margin: 16px;
+                max-width: none;
+            }
+            
+            body {
+                padding: 16px;
+            }
+            
+            .game-selection {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .game-card {
+                padding: 24px 20px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .more-logo {
+                font-size: 28px;
+            }
+            
+            .game-selection-title {
+                font-size: 20px;
+            }
+            
+            .container {
+                padding: 24px 20px;
+            }
+        }
+
+        /* Enhanced Game Screen Styles */
+        .game-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #E5E7EB;
+        }
+
+        .back-button {
+            background: #6B7280;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            background: #4B5563;
+            transform: translateY(-2px);
+        }
+
+        .game-title {
+            color: #1F2937;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* Quiz Game Enhanced Styles */
+        .quiz-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .quiz-progress {
+            background: #F3F4F6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .quiz-progress .timer {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-purple);
+            margin: 0;
         }
 
         .quiz-question {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            background: white;
+            border: 2px solid #E5E7EB;
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .quiz-question h3 {
+            color: #1F2937;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            line-height: 1.4;
         }
 
         .quiz-options {
             display: grid;
-            gap: 10px;
+            gap: 12px;
         }
 
         .quiz-option {
-            background: white;
-            border: 2px solid #ddd;
-            padding: 15px;
-            border-radius: 8px;
+            background: #F9FAFB;
+            border: 2px solid #E5E7EB;
+            padding: 16px 20px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition);
+            font-size: 16px;
+            font-weight: 500;
+            position: relative;
         }
 
         .quiz-option:hover {
-            border-color: #667eea;
-            background: #f0f4ff;
+            border-color: var(--primary-purple);
+            background: #F3F4F6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 93, 255, 0.15);
         }
 
         .quiz-option.selected {
-            background: #667eea;
+            background: var(--primary-purple);
             color: white;
-            border-color: #667eea;
+            border-color: var(--primary-purple);
+            box-shadow: 0 4px 12px rgba(139, 93, 255, 0.3);
         }
 
+        .quiz-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 32px;
+        }
+
+        .quiz-button {
+            background: var(--primary-purple);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .quiz-button:hover {
+            background: #7C4EE6;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(139, 93, 255, 0.3);
+        }
+
+        /* Puzzle Game Enhanced Styles */
         .puzzle-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 2px;
-            margin: 20px auto;
+            gap: 4px;
+            margin: 32px auto;
             width: 400px;
             height: 400px;
+            background: #F3F4F6;
+            padding: 8px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            contain: layout style paint;
         }
 
         .puzzle-tile {
-            border: 2px solid #ddd;
-            border-radius: 4px;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 24px;
-            transition: all 0.2s;
-            background-size: cover !important;
-            background-position: center !important;
-            background-repeat: no-repeat !important;
-            min-height: 95px;
-            min-width: 95px;
+            font-size: 18px;
+            transition: var(--transition);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transform: translateZ(0);
+            will-change: transform;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .puzzle-tile:hover {
-            transform: scale(1.02);
-            border-color: #667eea;
+            transform: scale(1.05);
+            border-color: var(--primary-purple);
+            box-shadow: 0 4px 16px rgba(139, 93, 255, 0.2);
+            z-index: 1;
         }
 
         .puzzle-tile.empty {
-            background: rgba(255,255,255,0.1) !important;
-            border: 2px dashed #ccc;
+            background: rgba(255,255,255,0.5) !important;
+            border: 2px dashed #D1D5DB;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .puzzle-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .puzzle-timer {
+            background: white;
+            border: 2px solid #E5E7EB;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-purple);
+        }
+
+        .reset-button {
+            background: #6B7280;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .reset-button:hover {
+            background: #4B5563;
+            transform: translateY(-2px);
+        }
+
+        /* Basketball Game Enhanced Styles */
+        .basketball-container {
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .basketball-game {
             position: relative;
             width: 100%;
             height: 500px;
-            background: linear-gradient(to bottom, #87CEEB, #98FB98);
-            border-radius: 10px;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 50%, #90EE90 100%);
+            border-radius: 16px;
             overflow: hidden;
+            contain: layout style paint;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            border: 3px solid #F3F4F6;
+        }
+
+        .basketball-game::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(255,255,255,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255,255,255,0.2) 0%, transparent 50%);
+            pointer-events: none;
         }
 
         .basket {
             position: absolute;
-            top: 100px;
-            right: 50px;
-            width: 80px;
-            height: 40px;
-            background: #8B4513;
-            border-radius: 0 0 40px 40px;
-            border: 3px solid #654321;
+            top: 120px;
+            right: 60px;
+            width: 100px;
+            height: 50px;
+            background: linear-gradient(to bottom, #D2691E, #8B4513);
+            border-radius: 0 0 50px 50px;
+            border: 4px solid #654321;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .basket::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 10px;
+            right: 10px;
+            height: 8px;
+            background: #654321;
+            border-radius: 4px;
         }
 
         .ball {
             position: absolute;
             width: 40px;
             height: 40px;
-            background: #FF8C00;
+            background: radial-gradient(circle at 30% 30%, #FFA500, #FF8C00, #FF6347);
             border-radius: 50%;
-            bottom: 50px;
-            left: 50px;
+            bottom: 60px;
+            left: 60px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            border: 2px solid #FF6347;
+            transition: var(--transition);
+            border: 3px solid #FF6347;
+            transform: translateZ(0);
+            will-change: transform;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .ball:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(255, 140, 0, 0.4);
+        }
+
+        .ball::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 30px;
+            background: #CD853F;
+            transform: translate(-50%, -50%);
+            border-radius: 1px;
+        }
+
+        .ball::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 30px;
+            height: 2px;
+            background: #CD853F;
+            transform: translate(-50%, -50%);
+            border-radius: 1px;
         }
 
         .stats {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            top: 24px;
+            left: 24px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+
+        .stats div {
+            margin-bottom: 8px;
+            font-size: 16px;
+            color: #1F2937;
+        }
+
+        .stats div:last-child {
+            margin-bottom: 0;
+        }
+
+        .basketball-instructions {
+            text-align: center;
+            margin-top: 16px;
+            padding: 16px;
             background: rgba(255,255,255,0.9);
-            padding: 15px;
-            border-radius: 10px;
-            font-weight: bold;
+            border-radius: 12px;
+            font-size: 16px;
+            color: #6B7280;
+            font-weight: 500;
         }
 
-        .timer {
-            font-size: 24px;
-            color: #667eea;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .back-button {
-            background: #6c757d;
-            margin-bottom: 20px;
-        }
-
-        .success-message {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .error-display {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
-            display: none;
-        }
-
+        /* Game Results Enhanced Styles */
         .result-content {
             text-align: center;
             padding: 40px 20px;
         }
 
         .result-win {
-            background: linear-gradient(135deg, #28a745, #20c997);
+            background: linear-gradient(135deg, #10B981, #059669);
             color: white;
             border-radius: 20px;
-            padding: 40px;
+            padding: 48px 32px;
             margin: 20px 0;
-            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+            box-shadow: 0 16px 40px rgba(16, 185, 129, 0.3);
         }
 
         .result-lose {
-            background: linear-gradient(135deg, #dc3545, #fd7e14);
+            background: linear-gradient(135deg, #EF4444, #DC2626);
             color: white;
             border-radius: 20px;
-            padding: 40px;
+            padding: 48px 32px;
             margin: 20px 0;
-            box-shadow: 0 10px 30px rgba(220, 53, 69, 0.3);
+            box-shadow: 0 16px 40px rgba(239, 68, 68, 0.3);
         }
 
         .result-title {
             font-size: 2.5em;
-            margin-bottom: 20px;
-            font-weight: bold;
+            margin-bottom: 16px;
+            font-weight: 700;
         }
 
         .result-message {
-            font-size: 1.5em;
-            margin-bottom: 20px;
+            font-size: 1.3em;
+            margin-bottom: 24px;
             line-height: 1.4;
+            opacity: 0.95;
         }
 
         .result-stats {
             background: rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            font-size: 1.2em;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 24px 0;
+            font-size: 1.1em;
+            backdrop-filter: blur(10px);
         }
 
-        .loading {
-            text-align: center;
-            color: #667eea;
-            font-weight: bold;
+        .result-stats div {
+            margin-bottom: 8px;
+            padding: 4px 0;
+        }
+
+        .result-stats div:last-child {
+            margin-bottom: 0;
         }
 
         .result-emoji {
             font-size: 4em;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             display: block;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-                margin: 10px;
-            }
-            
-            .game-selection {
-                grid-template-columns: 1fr;
-            }
-            
-            .puzzle-container {
-                width: 300px;
-                height: 300px;
-            }
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        .result-button {
+            background: var(--primary-purple);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            min-width: 160px;
+        }
+
+        .result-button:hover {
+            background: #7C4EE6;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(139, 93, 255, 0.3);
+        }
+
+        .result-button.secondary {
+            background: #6B7280;
+        }
+
+        .result-button.secondary:hover {
+            background: #4B5563;
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Admin Button */
+        .admin-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #6B7280;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 1000;
+            display: none;
+        }
+
+        /* Install PWA Button */
+        .install-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            display: none;
         }
     </style>
-    
 </head>
 <body>
     <div class="container">
-        <button id="downloadEmailsBtn" style="display:none; font-size:12px; padding:4px 12px; border-radius:6px; margin:10px 0;">
-            Download Emails
-        </button>
+        <!-- Admin Button -->
+        <button id="downloadEmailsBtn" class="admin-button">Download Emails</button>
 
         <!-- Registration Screen -->
         <div id="registration" class="screen active">
-            <h1>🎮 Welcome to a more FIBA Game Suite</h1>
-            <div class="error-display" id="registrationError"></div>
-            <div id="registrationForm">
-                <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" required>
+            <div class="more-logo">more.com</div>
+            <h2 class="registration-title">Welcome to the more.com game suite</h2>
+            
+            <div class="error-display" id="registrationError" role="alert"></div>
+            
+            <form id="registrationForm" novalidate>
+                <div class="form-fields">
+                    <div class="text-field">
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name"
+                            placeholder="Name" 
+                            required 
+                            autocomplete="given-name"
+                            aria-describedby="name-error"
+                        >
+                    </div>
+                    <div class="text-field">
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email"
+                            placeholder="Email" 
+                            required 
+                            autocomplete="email"
+                            aria-describedby="email-error"
+                        >
+                    </div>
+                    <div class="text-field">
+                        <input 
+                            type="text" 
+                            id="country" 
+                            name="country"
+                            placeholder="Country (of residence)" 
+                            required 
+                            autocomplete="country"
+                            aria-describedby="country-error"
+                        >
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" required>
+                
+                <div class="terms-section">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="termsCheckbox" required>
+                        <span class="terms-text">
+                            I accept more.com's 
+                            <a href="#" class="terms-link" target="_blank" rel="noopener">Terms of use.</a>
+                        </span>
+                    </label>
                 </div>
-                <button type="button" onclick="registerPlayer()" id="registerBtn">Start Playing!</button>
-                <div class="loading" id="loadingMessage" style="display: none;">Registering player...</div>
-            </div>
+                
+                <button type="submit" id="registerBtn" class="register-button" disabled>
+                    Start
+                </button>
+                
+                <div class="loading" id="loadingMessage">Registering player...</div>
+            </form>
         </div>
 
         <!-- Game Selection Screen -->
         <div id="gameSelection" class="screen">
-            <h1>Choose Your Game</h1>
-            <p style="text-align: center; margin-bottom: 20px;">Welcome, <span id="playerName"></span>!</p>
+            <div class="more-logo">more.com</div>
+            <h1 class="game-selection-title">Hi, <span id="playerName" style="font-weight: 700;"></span></h1>
+            <p class="game-selection-subtitle">Choose 1 game</p>
+            
             <div class="game-selection">
-                <div class="game-card" onclick="startQuiz()">
-                    <h3>🧠 Quiz Challenge</h3>
-                    <p>Answer 5 questions correctly</p>
+                <div class="game-card" onclick="GameManager.startQuiz()">
+                    <div class="game-icon">
+                        <img src="quiz-icon.png" alt="Quiz Icon" width="60" height="60">
+                    </div>
+                    <h3>Quiz challenge</h3>
+                    <p>Answer all 5 questions correctly</p>
                 </div>
-                <div class="game-card" onclick="startPuzzleGame()">
-                    <h3>🧩 FIBA Puzzle Master</h3>
+                
+                <div class="game-card" onclick="GameManager.startPuzzle()">
+                    <div class="game-icon">
+                        <img src="puzzle-icon.png" alt="Puzzle Icon" width="60" height="60">
+                    </div>
+                    <h3>FIBA Puzzle master</h3>
                     <p>Solve the sliding puzzle in time</p>
                 </div>
-                <div class="game-card" onclick="startBasketball()">
-                    <h3>🏀 More Hoops</h3>
-                    <p>Score hoops within the time limit</p>
+                
+                <div class="game-card" onclick="GameManager.startBasketball()">
+                    <div class="game-icon">
+                        <img src="ball-icon.png" alt="Ball Icon" width="60" height="60">
+                    </div>
+                    <h3>More Hoops</h3>h
+                    <p>Score 5 hoops within the time limit</p>
                 </div>
             </div>
         </div>
 
         <!-- Quiz Game Screen -->
         <div id="quizGame" class="screen">
-            <button class="back-button" onclick="backToSelection()">← Back</button>
-            <h2>Quiz Challenge</h2>
-            <div class="timer" id="quizTimer">Question 1 of 5</div>
-            <div id="quizContent"></div>
-            <button id="nextQuestion" onclick="nextQuestion()" style="display: none;">Next Question</button>
-            <button id="finishQuiz" onclick="finishQuiz()" style="display: none;">Finish Quiz</button>
+            <div class="game-header">
+                <button class="back-button" onclick="UIManager.backToSelection()">← Back</button>
+                <h2 class="game-title">Quiz Challenge</h2>
+            </div>
+            
+            <div class="quiz-container">
+                <div class="quiz-progress">
+                    <div class="timer" id="quizTimer">Question 1 of 5</div>
+                </div>
+                
+                <div id="quizContent"></div>
+                
+                <div class="quiz-actions">
+                    <button id="nextQuestion" onclick="QuizGame.nextQuestion()" class="quiz-button hidden">Next Question</button>
+                    <button id="finishQuiz" onclick="QuizGame.finishQuiz()" class="quiz-button hidden">Finish Quiz</button>
+                </div>
+            </div>
         </div>
 
         <!-- Puzzle Game Screen -->
         <div id="puzzleGame" class="screen">
-            <button class="back-button" onclick="backToSelection()">← Back</button>
-            <h2>Sliding Puzzle</h2>
-            <div class="timer" id="puzzleTimer">Time: 60s</div>
+            <div class="game-header">
+                <button class="back-button" onclick="UIManager.backToSelection()">← Back</button>
+                <h2 class="game-title">Sliding Puzzle</h2>
+            </div>
+            
             <div class="puzzle-container" id="puzzleContainer"></div>
-            <button onclick="resetPuzzle()">Reset</button>
+            
+            <div class="puzzle-controls">
+                <div class="puzzle-timer" id="puzzleTimer">Time: 40s</div>
+                <button onclick="PuzzleGame.reset()" class="reset-button">Reset</button>
+            </div>
         </div>
 
         <!-- Basketball Game Screen -->
         <div id="basketballGame" class="screen">
-            <button class="back-button" onclick="backToSelection()">← Back</button>
-            <h2>Basketball Hoops</h2>
-            <div class="basketball-game">
-                <div class="stats">
-                    <div>Score: <span id="basketballScore">0</span>/10</div>
-                    <div>Time: <span id="basketballTimer">30</span>s</div>
-                </div>
-                <div class="basket"></div>
-                <div class="ball" id="basketballBall"></div>
+            <div class="game-header">
+                <button class="back-button" onclick="UIManager.backToSelection()">← Back</button>
+                <h2 class="game-title">Basketball Hoops</h2>
             </div>
-            <p style="text-align: center; margin-top: 10px;">Click and drag the ball towards the basket!</p>
+            
+            <div class="basketball-container">
+                <div class="basketball-game">
+                    <div class="stats">
+                        <div>Score: <span id="basketballScore">0</span>/10</div>
+                        <div>Time: <span id="basketballTimer">30</span>s</div>
+                    </div>
+                    <div class="basket"></div>
+                    <div class="ball" id="basketballBall"></div>
+                </div>
+                
+                <div class="basketball-instructions">
+                    Click and drag the ball towards the basket!
+                </div>
+            </div>
         </div>
 
         <!-- Game Results Screen -->
         <div id="gameResults" class="screen">
-            <div id="resultContent" class="result-content">
-                <!-- Results will be dynamically inserted here -->
-            </div>
-            <div style="text-align: center; margin-top: 30px;">
-                <button onclick="backToSelection()">Play Another Game</button>
-                <button onclick="showScreen('registration')" style="background: #6c757d;">New Player</button>
+            <div id="resultContent" class="result-content"></div>
+            <div class="result-actions">
+                <button onclick="UIManager.backToSelection()" class="result-button">
+                    Play Another Game
+                </button>
+                <button onclick="UIManager.showScreen('registration')" class="result-button secondary">
+                    New Player
+                </button>
             </div>
         </div>
     </div>
-    <script src="quiz-config.js"></script>
+
+    <!-- Performance: Load scripts after DOM -->
+    <script src="quiz-config.js" defer></script>
     <script>
-        // Game Configuration
-        const QUIZ_CONFIG = window.QUIZ_CONFIG;
-
-        // Game State Variables
-        let currentPlayer = null;
-        let currentQuizQuestion = 0;
-        let quizScore = 0;
-        let selectedAnswer = null;
-        let puzzleTimer = null;
-        let basketballTimer = null;
-        let basketballScore = 0;
-        let puzzleSize = 3;
-        let puzzleGrid = [];
-        let puzzleTimeLeft = 60;
-        let puzzleTileImages = [];
-        let isDragging = false;
-        let startX, startY;
-
-        // In-memory storage for player data
-        let gamePlayersDB = [];
-
-        // Utility Functions
-        function showError(message) {
-            const errorDiv = document.getElementById('registrationError');
-            if (errorDiv) {
-                errorDiv.textContent = message;
-                errorDiv.style.display = 'block';
-                setTimeout(() => {
-                    errorDiv.style.display = 'none';
-                }, 4000);
+        // Performance-Optimized Game Architecture
+        class PerformanceOptimizer {
+            static debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
             }
-            console.log('Error:', message);
-        }
 
-        function showLoading(show = true) {
-            const loadingDiv = document.getElementById('loadingMessage');
-            const button = document.getElementById('registerBtn');
-            if (loadingDiv && button) {
-                loadingDiv.style.display = show ? 'block' : 'none';
-                button.disabled = show;
-                button.style.opacity = show ? '0.5' : '1';
+            static throttle(func, limit) {
+                let inThrottle;
+                return function() {
+                    const args = arguments;
+                    const context = this;
+                    if (!inThrottle) {
+                        func.apply(context, args);
+                        inThrottle = true;
+                        setTimeout(() => inThrottle = false, limit);
+                    }
+                }
             }
-        }
 
-        // Data Management Functions
-        function savePlayerData(name, email) {
-            const playerData = {
-                id: Date.now(),
-                name: name,
-                email: email,
-                timestamp: new Date().toISOString(),
-                games: []
-            };
-            
-            gamePlayersDB.push(playerData);
-            console.log('Player saved:', playerData);
-            return playerData;
-        }
+            static fastRAF(callback) {
+                if ('requestIdleCallback' in window) {
+                    requestIdleCallback(callback);
+                } else {
+                    requestAnimationFrame(callback);
+                }
+            }
 
-        function updatePlayerGameResult(playerId, gameType, result) {
-            const playerIndex = gamePlayersDB.findIndex(p => p.id === playerId);
-            if (playerIndex !== -1) {
-                gamePlayersDB[playerIndex].games.push({
-                    type: gameType,
-                    result: result,
-                    timestamp: new Date().toISOString()
+            static preloadImage(src) {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.onerror = reject;
+                    img.src = src;
                 });
-                console.log('Updated player database:', gamePlayersDB);
             }
         }
 
-        // Registration Function
-        function registerPlayer() {
-            console.log('Registration started');
-            
-            const errorDiv = document.getElementById('registrationError');
-            if (errorDiv) {
-                errorDiv.style.display = 'none';
+        // Centralized State Management
+        class GameState {
+            constructor() {
+                this.currentPlayer = null;
+                this.gameData = {
+                    quiz: { currentQuestion: 0, score: 0, selectedAnswer: null },
+                    puzzle: { grid: [], timeLeft: 90, timer: null },
+                    basketball: { score: 0, timer: null, isDragging: false }
+                };
+                this.playersDB = [];
             }
-            
-            showLoading(true);
-            
-            const nameInput = document.getElementById('name');
-            const emailInput = document.getElementById('email');
-            
-            if (!nameInput || !emailInput) {
-                console.error('Form inputs not found');
-                showLoading(false);
-                showError('Form elements not found. Please refresh and try again.');
-                return;
+
+            updateGameData(game, data) {
+                this.gameData[game] = { ...this.gameData[game], ...data };
             }
-            
-            const name = nameInput.value.trim();
-            const email = emailInput.value.trim();
-            
-            console.log('Name:', name, 'Email:', email);
-            
-            if (!name) {
-                showLoading(false);
-                showError('Please enter your name.');
-                nameInput.focus();
-                return;
+
+            savePlayer(playerData) {
+                playerData.id = Date.now();
+                playerData.timestamp = new Date().toISOString();
+                playerData.games = [];
+                
+                this.playersDB.push(playerData);
+                this.currentPlayer = playerData;
+                console.log('Player saved:', playerData);
+                return playerData;
             }
-            
-            if (!email) {
-                showLoading(false);
-                showError('Please enter your email.');
-                emailInput.focus();
-                return;
+
+            updatePlayerGameResult(playerId, gameType, result) {
+                const player = this.playersDB.find(p => p.id === playerId);
+                if (player) {
+                    player.games.push({
+                        type: gameType,
+                        result: result,
+                        timestamp: new Date().toISOString()
+                    });
+                }
             }
-            
-            if (!email.includes('@') || !email.includes('.')) {
-                showLoading(false);
-                showError('Please enter a valid email address.');
-                emailInput.focus();
-                return;
+        }
+
+        // UI Management
+        class UIManager {
+            static showScreen(screenId) {
+                // Performance: Batch DOM operations
+                const screens = document.querySelectorAll('.screen');
+                const targetScreen = document.getElementById(screenId);
+                
+                if (!targetScreen) {
+                    console.error('Screen not found:', screenId);
+                    return false;
+                }
+
+                // Use requestAnimationFrame for smooth transitions
+                requestAnimationFrame(() => {
+                    screens.forEach(screen => {
+                        screen.classList.remove('active');
+                    });
+                    
+                    requestAnimationFrame(() => {
+                        targetScreen.classList.add('active');
+                    });
+                });
+
+                return true;
             }
-            
-            setTimeout(() => {
+
+            static showError(message) {
+                const errorDiv = document.getElementById('registrationError');
+                if (errorDiv) {
+                    errorDiv.textContent = message;
+                    errorDiv.style.display = 'block';
+                    setTimeout(() => {
+                        errorDiv.style.display = 'none';
+                    }, 4000);
+                }
+            }
+
+            static showLoading(show = true) {
+                const loadingDiv = document.getElementById('loadingMessage');
+                const button = document.getElementById('registerBtn');
+                
+                if (loadingDiv && button) {
+                    loadingDiv.style.display = show ? 'block' : 'none';
+                    button.disabled = show;
+                    button.style.opacity = show ? '0.5' : '1';
+                }
+            }
+
+            static backToSelection() {
+                UIManager.showScreen('gameSelection');
+                // Clean up any running timers
+                if (gameState.gameData.puzzle.timer) {
+                    clearInterval(gameState.gameData.puzzle.timer);
+                }
+                if (gameState.gameData.basketball.timer) {
+                    clearInterval(gameState.gameData.basketball.timer);
+                }
+            }
+
+            static showGameResult(gameType, won, stats = {}) {
+                const resultContent = document.getElementById('resultContent');
+                if (!resultContent) return;
+
+                const resultData = {
+                    win: {
+                        message: "Congrats on winning a More.com Present",
+                        class: "result-win",
+                        emoji: "🎉",
+                        title: "WINNER!"
+                    },
+                    lose: {
+                        message: "Well.. that was unlucky wasn't it?",
+                        class: "result-lose", 
+                        emoji: "😅",
+                        title: "GAME OVER"
+                    }
+                };
+
+                const result = won ? resultData.win : resultData.lose;
+                
+                let statsHtml = '';
+                if (Object.keys(stats).length > 0) {
+                    statsHtml = '<div class="result-stats">';
+                    for (const [key, value] of Object.entries(stats)) {
+                        statsHtml += `<div><strong>${key}:</strong> ${value}</div>`;
+                    }
+                    statsHtml += '</div>';
+                }
+
+                resultContent.innerHTML = `
+                    <div class="${result.class}">
+                        <span class="result-emoji">${result.emoji}</span>
+                        <div class="result-title">${result.title}</div>
+                        <div class="result-message">${result.message}</div>
+                        ${statsHtml}
+                    </div>
+                `;
+
+                UIManager.showScreen('gameResults');
+                
+                if (gameState.currentPlayer) {
+                    gameState.updatePlayerGameResult(gameState.currentPlayer.id, gameType, {
+                        won: won,
+                        stats: stats,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            }
+        }
+
+        // Registration Management
+        class RegistrationManager {
+            constructor() {
+                this.form = document.getElementById('registrationForm');
+                this.submitButton = document.getElementById('registerBtn');
+                this.initializeValidation();
+            }
+
+            initializeValidation() {
+                const inputs = this.form.querySelectorAll('input[required]');
+                const termsCheckbox = document.getElementById('termsCheckbox');
+                
+                // Ensure button starts disabled
+                this.submitButton.disabled = true;
+                this.submitButton.style.opacity = '0.5';
+                this.submitButton.style.cursor = 'not-allowed';
+                
+                // Debounced validation for performance
+                const debouncedValidation = PerformanceOptimizer.debounce(() => {
+                    this.validateForm();
+                }, 100);
+
+                inputs.forEach(input => {
+                    input.addEventListener('input', debouncedValidation);
+                    input.addEventListener('blur', debouncedValidation);
+                });
+
+                termsCheckbox.addEventListener('change', debouncedValidation);
+                this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+                
+                // Run initial validation
+                this.validateForm();
+            }
+
+            validateForm() {
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const country = document.getElementById('country').value.trim();
+                const termsAccepted = document.getElementById('termsCheckbox').checked;
+
+                const isValid = name && email && country && termsAccepted && this.isValidEmail(email);
+                
+                // Performance: Only update if state changed
+                const currentState = !this.submitButton.disabled;
+                if (currentState !== isValid) {
+                    this.submitButton.disabled = !isValid;
+                    
+                    // Visual feedback for button state
+                    if (isValid) {
+                        this.submitButton.style.opacity = '1';
+                        this.submitButton.style.cursor = 'pointer';
+                    } else {
+                        this.submitButton.style.opacity = '0.5';
+                        this.submitButton.style.cursor = 'not-allowed';
+                    }
+                }
+            }
+
+            isValidEmail(email) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            }
+
+            async handleSubmit(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this.form);
+                const playerData = {
+                    name: formData.get('name').trim(),
+                    email: formData.get('email').trim(),
+                    country: formData.get('country').trim()
+                };
+
+                if (!this.isValidEmail(playerData.email)) {
+                    UIManager.showError('Please enter a valid email address.');
+                    return;
+                }
+
+                UIManager.showLoading(true);
+
+                // Simulate API call with realistic delay
                 try {
-                    console.log('Saving player data...');
-                    currentPlayer = savePlayerData(name, email);
-                    console.log('Player created:', currentPlayer);
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    
+                    const player = gameState.savePlayer(playerData);
                     
                     const playerNameElement = document.getElementById('playerName');
                     if (playerNameElement) {
-                        playerNameElement.textContent = name;
-                        console.log('Player name set in game selection');
+                        playerNameElement.textContent = player.name;
                     }
-                    
-                    console.log('Switching to game selection...');
-                    showLoading(false);
-                    showScreen('gameSelection');
+
+                    UIManager.showLoading(false);
+                    UIManager.showScreen('gameSelection');
                     
                 } catch (error) {
-                    console.error('Error in registration process:', error);
-                    showLoading(false);
-                    showError('Registration failed. Please try again.');
+                    console.error('Registration error:', error);
+                    UIManager.showLoading(false);
+                    UIManager.showError('Registration failed. Please try again.');
                 }
-            }, 500);
-        }
-
-        // Screen Navigation
-        function showScreen(screenId) {
-            console.log('Switching to screen:', screenId);
-            
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
-            
-            const targetScreen = document.getElementById(screenId);
-            if (targetScreen) {
-                targetScreen.classList.add('active');
-                return true;
-            } else {
-                console.error('Screen not found:', screenId);
-                return false;
             }
         }
 
-        function backToSelection() {
-            showScreen('gameSelection');
-            if (puzzleTimer) clearInterval(puzzleTimer);
-            if (basketballTimer) clearInterval(basketballTimer);
-        }
-
-        // Game Results System
-        function showGameResult(gameType, won, stats = {}) {
-            const resultContent = document.getElementById('resultContent');
-            if (!resultContent) return;
-
-            const winMessage = "Congrats on winning a More.com Present";
-            const loseMessage = "Well.. that was unlucky wasn't it?";
-            
-            const resultClass = won ? 'result-win' : 'result-lose';
-            const emoji = won ? '🎉' : '😅';
-            const title = won ? 'WINNER!' : 'GAME OVER';
-            const message = won ? winMessage : loseMessage;
-
-            let statsHtml = '';
-            if (Object.keys(stats).length > 0) {
-                statsHtml = '<div class="result-stats">';
-                for (const [key, value] of Object.entries(stats)) {
-                    statsHtml += `<div><strong>${key}:</strong> ${value}</div>`;
-                }
-                statsHtml += '</div>';
+        // Game Managers
+        class QuizGame {
+            static async start() {
+                gameState.updateGameData('quiz', { currentQuestion: 0, score: 0 });
+                UIManager.showScreen('quizGame');
+                await QuizGame.displayQuestion();
             }
 
-            resultContent.innerHTML = `
-                <div class="${resultClass}">
-                    <span class="result-emoji">${emoji}</span>
-                    <div class="result-title">${title}</div>
-                    <div class="result-message">${message}</div>
-                    ${statsHtml}
-                </div>
-            `;
-
-            showScreen('gameResults');
-            
-            if (currentPlayer) {
-                updatePlayerGameResult(currentPlayer.id, gameType, {
-                    won: won,
-                    stats: stats,
-                    timestamp: new Date().toISOString()
-                });
-            }
-        }
-
-        // Quiz Game Functions
-        function startQuiz() {
-            currentQuizQuestion = 0;
-            quizScore = 0;
-            showScreen('quizGame');
-            displayQuestion();
-        }
-
-        function displayQuestion() {
-            const question = QUIZ_CONFIG.questions[currentQuizQuestion];
-            selectedAnswer = null;
-            
-            document.getElementById('quizTimer').textContent = `Question ${currentQuizQuestion + 1} of ${QUIZ_CONFIG.questions.length}`;
-            
-            const content = document.getElementById('quizContent');
-            content.innerHTML = `
-                <div class="quiz-question">
-                    <h3>${question.question}</h3>
-                    <div class="quiz-options">
-                        ${question.options.map((option, index) => 
-                            `<div class="quiz-option" onclick="selectAnswer(${index})">${option}</div>`
-                        ).join('')}
+            static async displayQuestion() {
+                const quizData = gameState.gameData.quiz;
+                const question = window.QUIZ_CONFIG.questions[quizData.currentQuestion];
+                
+                gameState.updateGameData('quiz', { selectedAnswer: null });
+                
+                document.getElementById('quizTimer').textContent = 
+                    `Question ${quizData.currentQuestion + 1} of ${window.QUIZ_CONFIG.questions.length}`;
+                
+                const content = document.getElementById('quizContent');
+                content.innerHTML = `
+                    <div class="quiz-question">
+                        <h3>${question.question}</h3>
+                        <div class="quiz-options">
+                            ${question.options.map((option, index) => 
+                                `<div class="quiz-option" onclick="QuizGame.selectAnswer(${index})">${option}</div>`
+                            ).join('')}
+                        </div>
                     </div>
-                </div>
-            `;
-            
-            document.getElementById('nextQuestion').style.display = 'none';
-            document.getElementById('finishQuiz').style.display = 'none';
-        }
-
-        function selectAnswer(answerIndex) {
-            selectedAnswer = answerIndex;
-            document.querySelectorAll('.quiz-option').forEach((option, index) => {
-                option.classList.remove('selected');
-                if (index === answerIndex) {
-                    option.classList.add('selected');
-                }
-            });
-            
-            if (currentQuizQuestion < QUIZ_CONFIG.questions.length - 1) {
-                document.getElementById('nextQuestion').style.display = 'inline-block';
-            } else {
-                document.getElementById('finishQuiz').style.display = 'inline-block';
-            }
-        }
-
-        function nextQuestion() {
-            if (selectedAnswer !== null) {
-                if (selectedAnswer === QUIZ_CONFIG.questions[currentQuizQuestion].correct) {
-                    quizScore++;
-                }
-                currentQuizQuestion++;
-                displayQuestion();
-            }
-        }
-
-        function finishQuiz() {
-            if (selectedAnswer !== null) {
-                if (selectedAnswer === QUIZ_CONFIG.questions[currentQuizQuestion].correct) {
-                    quizScore++;
-                }
+                `;
                 
-                const passed = quizScore == 5;
-                const stats = {
-                    'Score': `${quizScore}/${QUIZ_CONFIG.questions.length}`,
-                    'Percentage': `${Math.round((quizScore / QUIZ_CONFIG.questions.length) * 100)}%`
-                };
-                
-                showGameResult('quiz', passed, stats);
+                document.getElementById('nextQuestion').classList.add('hidden');
+                document.getElementById('finishQuiz').classList.add('hidden');
             }
-        }
 
-        // Puzzle Game with Basketball Player Images
-        async function loadPuzzleTileImages() {
-            console.log('🏀 Loading basketball player puzzle tiles...');
-            puzzleTileImages = [];
-            
-            try {
-                // Updated to match your file structure
-                const imageFiles = Array.from({length: 8}, (_, i) => `images/${i + 1}.jpg`);
+            static selectAnswer(answerIndex) {
+                gameState.updateGameData('quiz', { selectedAnswer: answerIndex });
                 
-                const loadPromises = imageFiles.map((filename, index) => {
-                    return new Promise((resolve, reject) => {
-                        const img = new Image();
-                        img.onload = () => {
-                            console.log(`✅ Loaded tile ${index + 1}/8: ${filename}`);
-                            resolve(filename);
-                        };
-                        img.onerror = () => {
-                            console.error(`❌ Failed to load ${filename}`);
-                            resolve(createFallbackTile(index + 1));
-                        };
-                        img.src = filename;
+                // Performance: Batch DOM updates
+                requestAnimationFrame(() => {
+                    document.querySelectorAll('.quiz-option').forEach((option, index) => {
+                        option.classList.remove('selected');
+                        if (index === answerIndex) {
+                            option.classList.add('selected');
+                        }
                     });
-                });
-                
-                puzzleTileImages = await Promise.all(loadPromises);
-                console.log('✅ All puzzle tiles processed:', puzzleTileImages.length);
-                return true;
-                
-            } catch (error) {
-                console.error('❌ Error loading puzzle tiles:', error);
-                createFallbackTiles();
-                return false;
-            }
-        }
-
-        function createFallbackTile(tileNumber) {
-            const svg = `
-                <svg width="95" height="95" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="grad${tileNumber}" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#FF8C00"/>
-                            <stop offset="100%" style="stop-color:#FF6347"/>
-                        </linearGradient>
-                    </defs>
-                    <rect width="95" height="95" fill="url(#grad${tileNumber})" rx="4"/>
-                    <circle cx="47.5" cy="47.5" r="35" fill="none" stroke="white" stroke-width="2"/>
-                    <text x="47.5" y="52" text-anchor="middle" fill="white" font-size="16" font-weight="bold">${tileNumber}</text>
-                </svg>
-            `;
-            return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-        }
-
-        function createFallbackTiles() {
-            console.log('Creating fallback tiles...');
-            puzzleTileImages = [];
-            for (let i = 1; i <= 8; i++) {
-                puzzleTileImages.push(createFallbackTile(i));
-            }
-        }
-
-        function startPuzzleGame() {
-            console.log('🧩 Starting basketball player puzzle game...');
-            showScreen('puzzleGame');
-            
-            loadPuzzleTileImages().then((success) => {
-                if (success || puzzleTileImages.length === 8) {
-                    console.log('✅ Initializing puzzle with basketball player tiles');
-                    initializePuzzle();
-                    startPuzzleTimer();
-                } else {
-                    console.error('❌ Failed to load tiles, using fallbacks');
-                    createFallbackTiles();
-                    initializePuzzle();
-                    startPuzzleTimer();
-                }
-            });
-        }
-
-        function initializePuzzle() {
-            puzzleGrid = [];
-            for (let i = 1; i <= 8; i++) {
-                puzzleGrid.push(i);
-            }
-            puzzleGrid.push(null);
-            
-            const container = document.getElementById('puzzleContainer');
-            if (!container) {
-                console.error('Puzzle container not found!');
-                return;
-            }
-            
-            renderPuzzle();
-            console.log('Showing solved basketball player puzzle');
-            
-            setTimeout(() => {
-                console.log('Auto-shuffling puzzle...');
-                shufflePuzzle();
-                renderPuzzle();
-                console.log('Basketball player puzzle shuffled and ready to play!');
-            }, 3000);
-        }
-
-        function renderPuzzle() {
-            const container = document.getElementById('puzzleContainer');
-            if (!container) {
-                console.error('Container not found for rendering');
-                return;
-            }
-            
-            container.innerHTML = '';
-            
-            puzzleGrid.forEach((tileNumber, position) => {
-                const tileElement = document.createElement('div');
-                tileElement.className = 'puzzle-tile';
-                
-                if (tileNumber === null) {
-                    tileElement.classList.add('empty');
-                    tileElement.style.background = 'rgba(255,255,255,0.3)';
-                    tileElement.style.border = '2px dashed #ccc';
-                } else {
-                    const imageIndex = tileNumber - 1;
-                    if (puzzleTileImages[imageIndex]) {
-                        tileElement.style.backgroundImage = `url("${puzzleTileImages[imageIndex]}")`;
-                        console.log(`Tile ${tileNumber} using image ${imageIndex + 1}`);
+                    
+                    const quizData = gameState.gameData.quiz;
+                    const isLastQuestion = quizData.currentQuestion >= window.QUIZ_CONFIG.questions.length - 1;
+                    
+                    if (isLastQuestion) {
+                        document.getElementById('finishQuiz').classList.remove('hidden');
                     } else {
-                        tileElement.style.background = 'linear-gradient(45deg, #FF8C00, #FF6347)';
-                        tileElement.style.color = 'white';
-                        tileElement.textContent = tileNumber;
+                        document.getElementById('nextQuestion').classList.remove('hidden');
+                    }
+                });
+            }
+
+            static nextQuestion() {
+                const quizData = gameState.gameData.quiz;
+                if (quizData.selectedAnswer !== null) {
+                    if (quizData.selectedAnswer === window.QUIZ_CONFIG.questions[quizData.currentQuestion].correct) {
+                        gameState.updateGameData('quiz', { score: quizData.score + 1 });
+                    }
+                    gameState.updateGameData('quiz', { currentQuestion: quizData.currentQuestion + 1 });
+                    QuizGame.displayQuestion();
+                }
+            }
+
+            static finishQuiz() {
+                const quizData = gameState.gameData.quiz;
+                if (quizData.selectedAnswer !== null) {
+                    let finalScore = quizData.score;
+                    if (quizData.selectedAnswer === window.QUIZ_CONFIG.questions[quizData.currentQuestion].correct) {
+                        finalScore++;
                     }
                     
-                    tileElement.addEventListener('click', () => moveTile(position));
-                }
-                
-                container.appendChild(tileElement);
-            });
-            
-            console.log('✅ Puzzle rendered with basketball player images');
-        }
-
-        function moveTile(clickedPosition) {
-            const emptyPosition = puzzleGrid.indexOf(null);
-            const clickedRow = Math.floor(clickedPosition / puzzleSize);
-            const clickedCol = clickedPosition % puzzleSize;
-            const emptyRow = Math.floor(emptyPosition / puzzleSize);
-            const emptyCol = emptyPosition % puzzleSize;
-            
-            const isAdjacent = (Math.abs(clickedRow - emptyRow) === 1 && clickedCol === emptyCol) || 
-                              (Math.abs(clickedCol - emptyCol) === 1 && clickedRow === emptyRow);
-            
-            if (isAdjacent) {
-                [puzzleGrid[clickedPosition], puzzleGrid[emptyPosition]] = [puzzleGrid[emptyPosition], puzzleGrid[clickedPosition]];
-                
-                renderPuzzle();
-                
-                if (isPuzzleSolved()) {
-                    clearInterval(puzzleTimer);
-                    const timeUsed = 60 - puzzleTimeLeft;
+                    const passed = finalScore === 5;
                     const stats = {
-                        'Time Used': `${timeUsed} seconds`,
-                        'Time Remaining': `${puzzleTimeLeft} seconds`
+                        'Score': `${finalScore}/${window.QUIZ_CONFIG.questions.length}`,
+                        'Percentage': `${Math.round((finalScore / window.QUIZ_CONFIG.questions.length) * 100)}%`
                     };
                     
-                    showGameResult('puzzle', true, stats);
+                    UIManager.showGameResult('quiz', passed, stats);
                 }
             }
         }
 
-        function isPuzzleSolved() {
-            for (let i = 0; i < puzzleGrid.length - 1; i++) {
-                if (puzzleGrid[i] !== i + 1) return false;
+        class PuzzleGame {
+            static async start() {
+                UIManager.showScreen('puzzleGame');
+                await PuzzleGame.loadImages();
+                PuzzleGame.initialize();
+                // Don't start timer here - wait until after shuffle
             }
-            return puzzleGrid[puzzleGrid.length - 1] === null;
-        }
 
-        function shufflePuzzle() {
-            for (let i = 0; i < 1000; i++) {
-                const emptyPosition = puzzleGrid.indexOf(null);
-                const adjacentPositions = getAdjacentPositions(emptyPosition);
-                const randomPosition = adjacentPositions[Math.floor(Math.random() * adjacentPositions.length)];
+            static async loadImages() {
+                console.log('Loading puzzle images...');
+                const imagePromises = [];
                 
-                [puzzleGrid[emptyPosition], puzzleGrid[randomPosition]] = [puzzleGrid[randomPosition], puzzleGrid[emptyPosition]];
-            }
-        }
-
-        function getAdjacentPositions(position) {
-            const row = Math.floor(position / puzzleSize);
-            const col = position % puzzleSize;
-            const adjacent = [];
-            
-            if (row > 0) adjacent.push((row - 1) * puzzleSize + col);
-            if (row < puzzleSize - 1) adjacent.push((row + 1) * puzzleSize + col);
-            if (col > 0) adjacent.push(row * puzzleSize + (col - 1));
-            if (col < puzzleSize - 1) adjacent.push(row * puzzleSize + (col + 1));
-            
-            return adjacent;
-        }
-
-        function startPuzzleTimer() {
-            puzzleTimeLeft = 90;
-            puzzleTimer = setInterval(() => {
-                puzzleTimeLeft--;
-                document.getElementById('puzzleTimer').textContent = `Time: ${puzzleTimeLeft}s`;
-                
-                if (puzzleTimeLeft <= 0) {
-                    clearInterval(puzzleTimer);
-                    const stats = {
-                        'Result': 'Time expired',
-                        'Time Limit': '90 seconds'
-                    };
-                    
-                    showGameResult('puzzle', false, stats);
+                for (let i = 1; i <= 8; i++) {
+                    imagePromises.push(
+                        PerformanceOptimizer.preloadImage(`images/${i}.jpg`)
+                            .catch(() => PuzzleGame.createFallbackImage(i))
+                    );
                 }
-            }, 1000);
-        }
-
-        function resetPuzzle() {
-            initializePuzzle();
-            puzzleTimeLeft = 60;
-            document.getElementById('puzzleTimer').textContent = `Time: ${puzzleTimeLeft}s`;
-        }
-
-        // Basketball Game Functions
-        function startBasketball() {
-            showScreen('basketballGame');
-            basketballScore = 0;
-            document.getElementById('basketballScore').textContent = basketballScore;
-            resetBall();
-            startBasketballTimer();
-        }
-
-        function startBasketballTimer() {
-            let timeLeft = 30;
-            document.getElementById('basketballTimer').textContent = timeLeft;
-            
-            basketballTimer = setInterval(() => {
-                timeLeft--;
-                document.getElementById('basketballTimer').textContent = timeLeft;
                 
-                if (timeLeft <= 0 || basketballScore >= 10) {
-                    clearInterval(basketballTimer);
-                    
-                    const won = basketballScore >= 10;
-                    const stats = {
-                        'Final Score': `${basketballScore}/10 hoops`,
-                        'Time Used': `${30 - timeLeft} seconds`,
-                        'Success Rate': `${Math.round((basketballScore / 10) * 100)}%`
-                    };
-                    
-                    showGameResult('basketball', won, stats);
+                try {
+                    const images = await Promise.all(imagePromises);
+                    gameState.updateGameData('puzzle', { images });
+                    console.log('Puzzle images loaded successfully');
+                } catch (error) {
+                    console.error('Error loading puzzle images:', error);
+                    PuzzleGame.createFallbackImages();
                 }
-            }, 1000);
-        }
+            }
 
-        function resetBall() {
-            const ball = document.getElementById('basketballBall');
-            if (ball) {
-                ball.style.left = '50px';
-                ball.style.bottom = '50px';
-                ball.style.transform = '';
+            static createFallbackImage(number) {
+                const svg = `
+                    <svg width="95" height="95" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="95" height="95" fill="#8B5DFF" rx="4"/>
+                        <text x="47.5" y="52" text-anchor="middle" fill="white" font-size="24" font-weight="bold">${number}</text>
+                    </svg>
+                `;
+                return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+            }
+
+            static createFallbackImages() {
+                const images = [];
+                for (let i = 1; i <= 8; i++) {
+                    images.push(PuzzleGame.createFallbackImage(i));
+                }
+                gameState.updateGameData('puzzle', { images });
+            }
+
+            static initialize() {
+                const grid = Array.from({length: 8}, (_, i) => i + 1);
+                grid.push(null);
+                
+                gameState.updateGameData('puzzle', { grid, timeLeft: 40 });
+                PuzzleGame.render();
+                
+                // Show solved puzzle for 3 seconds, THEN start timer after shuffle
+                setTimeout(() => {
+                    PuzzleGame.shuffle();
+                    PuzzleGame.render();
+                    // Start timer only after puzzle is shuffled and playable
+                    PuzzleGame.startTimer();
+                }, 3000);
+            }
+
+            static render() {
+                const container = document.getElementById('puzzleContainer');
+                const puzzleData = gameState.gameData.puzzle;
+                
+                // Performance: Use DocumentFragment
+                const fragment = document.createDocumentFragment();
+                
+                puzzleData.grid.forEach((tileNumber, position) => {
+                    const tileElement = document.createElement('div');
+                    tileElement.className = 'puzzle-tile';
+                    
+                    if (tileNumber === null) {
+                        tileElement.classList.add('empty');
+                        tileElement.style.background = 'rgba(255,255,255,0.3)';
+                    } else {
+                        const image = puzzleData.images[tileNumber - 1];
+                        if (typeof image === 'string') {
+                            tileElement.style.backgroundImage = `url("${image}")`;
+                        } else {
+                            tileElement.style.backgroundImage = `url("${image.src}")`;
+                        }
+                        
+                        tileElement.addEventListener('click', () => PuzzleGame.moveTile(position), { passive: true });
+                    }
+                    
+                    fragment.appendChild(tileElement);
+                });
+                
+                container.innerHTML = '';
+                container.appendChild(fragment);
+            }
+
+            static moveTile(clickedPosition) {
+                const puzzleData = gameState.gameData.puzzle;
+                const emptyPosition = puzzleData.grid.indexOf(null);
+                
+                if (PuzzleGame.isAdjacent(clickedPosition, emptyPosition)) {
+                    const newGrid = [...puzzleData.grid];
+                    [newGrid[clickedPosition], newGrid[emptyPosition]] = [newGrid[emptyPosition], newGrid[clickedPosition]];
+                    
+                    gameState.updateGameData('puzzle', { grid: newGrid });
+                    PuzzleGame.render();
+                    
+                    if (PuzzleGame.isSolved()) {
+                        clearInterval(puzzleData.timer);
+                        const timeUsed = 40 - puzzleData.timeLeft;
+                        UIManager.showGameResult('puzzle', true, {
+                            'Time Used': `${timeUsed} seconds`,
+                            'Time Remaining': `${puzzleData.timeLeft} seconds`
+                        });
+                    }
+                }
+            }
+
+            static isAdjacent(pos1, pos2) {
+                const row1 = Math.floor(pos1 / 3);
+                const col1 = pos1 % 3;
+                const row2 = Math.floor(pos2 / 3);
+                const col2 = pos2 % 3;
+                
+                return (Math.abs(row1 - row2) === 1 && col1 === col2) || 
+                       (Math.abs(col1 - col2) === 1 && row1 === row2);
+            }
+
+            static isSolved() {
+                const grid = gameState.gameData.puzzle.grid;
+                for (let i = 0; i < grid.length - 1; i++) {
+                    if (grid[i] !== i + 1) return false;
+                }
+                return grid[grid.length - 1] === null;
+            }
+
+            static shuffle() {
+                const puzzleData = gameState.gameData.puzzle;
+                let grid = [...puzzleData.grid];
+                
+                for (let i = 0; i < 1000; i++) {
+                    const emptyPos = grid.indexOf(null);
+                    const adjacent = PuzzleGame.getAdjacentPositions(emptyPos);
+                    const randomPos = adjacent[Math.floor(Math.random() * adjacent.length)];
+                    [grid[emptyPos], grid[randomPos]] = [grid[randomPos], grid[emptyPos]];
+                }
+                
+                gameState.updateGameData('puzzle', { grid });
+            }
+
+            static getAdjacentPositions(position) {
+                const row = Math.floor(position / 3);
+                const col = position % 3;
+                const adjacent = [];
+                
+                if (row > 0) adjacent.push((row - 1) * 3 + col);
+                if (row < 2) adjacent.push((row + 1) * 3 + col);
+                if (col > 0) adjacent.push(row * 3 + (col - 1));
+                if (col < 2) adjacent.push(row * 3 + (col + 1));
+                
+                return adjacent;
+            }
+
+            static startTimer() {
+                const timer = setInterval(() => {
+                    // Get fresh reference to current puzzle data each time
+                    const currentPuzzleData = gameState.gameData.puzzle;
+                    const newTimeLeft = currentPuzzleData.timeLeft - 1;
+                    
+                    gameState.updateGameData('puzzle', { timeLeft: newTimeLeft });
+                    document.getElementById('puzzleTimer').textContent = `Time: ${newTimeLeft}s`;
+                    
+                    if (newTimeLeft <= 0) {
+                        clearInterval(timer);
+                        UIManager.showGameResult('puzzle', false, {
+                            'Result': 'Time expired',
+                            'Time Limit': '40 seconds'
+                        });
+                    }
+                }, 1000);
+                
+                gameState.updateGameData('puzzle', { timer });
+            }
+
+            static reset() {
+                const puzzleData = gameState.gameData.puzzle;
+                if (puzzleData.timer) {
+                    clearInterval(puzzleData.timer);
+                }
+                PuzzleGame.initialize();
+                PuzzleGame.startTimer();
+                document.getElementById('puzzleTimer').textContent = `Time: 40s`;
             }
         }
 
-        function initializeBasketballEvents() {
-            const ball = document.getElementById('basketballBall');
-            if (!ball) return;
+        class BasketballGame {
+            static start() {
+                UIManager.showScreen('basketballGame');
+                gameState.updateGameData('basketball', { score: 0, isDragging: false });
+                document.getElementById('basketballScore').textContent = '0';
+                BasketballGame.resetBall();
+                BasketballGame.startTimer();
+                BasketballGame.initializeEvents();
+            }
 
-            ball.addEventListener('mousedown', startDrag);
-            ball.addEventListener('touchstart', startDrag);
-        }
+            static initializeEvents() {
+                const ball = document.getElementById('basketballBall');
+                if (!ball) return;
 
-        function startDrag(e) {
-            e.preventDefault();
-            isDragging = true;
-            const clientX = e.clientX || e.touches[0].clientX;
-            const clientY = e.clientY || e.touches[0].clientY;
-            startX = clientX;
-            startY = clientY;
-        }
+                // Performance: Use passive event listeners where possible
+                ball.addEventListener('mousedown', BasketballGame.startDrag, { passive: false });
+                ball.addEventListener('touchstart', BasketballGame.startDrag, { passive: false });
+                
+                // Throttled move events for performance
+                const throttledMove = PerformanceOptimizer.throttle(BasketballGame.drag, 16); // 60fps
+                document.addEventListener('mousemove', throttledMove, { passive: true });
+                document.addEventListener('touchmove', throttledMove, { passive: true });
+                
+                document.addEventListener('mouseup', BasketballGame.endDrag, { passive: true });
+                document.addEventListener('touchend', BasketballGame.endDrag, { passive: true });
+            }
 
-        function drag(e) {
-            if (!isDragging) return;
-            e.preventDefault();
-        }
+            static startDrag(e) {
+                e.preventDefault();
+                gameState.updateGameData('basketball', { 
+                    isDragging: true,
+                    startX: e.clientX || e.touches[0].clientX,
+                    startY: e.clientY || e.touches[0].clientY
+                });
+            }
 
-        function endDrag(e) {
-            if (!isDragging) return;
-            isDragging = false;
-            
-            const clientX = e.clientX || e.changedTouches[0].clientX;
-            const clientY = e.clientY || e.changedTouches[0].clientY;
-            
-            const deltaX = clientX - startX;
-            const deltaY = startY - clientY;
-            
-            shootBall(deltaX, deltaY);
-        }
+            static drag(e) {
+                const basketballData = gameState.gameData.basketball;
+                if (!basketballData.isDragging) return;
+                // Visual feedback could be added here
+            }
 
-        function shootBall(deltaX, deltaY) {
-            const ball = document.getElementById('basketballBall');
-            const basket = document.querySelector('.basket');
-            
-            if (!ball || !basket) return;
-            
-            const power = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY) / 5, 50);
-            const angle = Math.atan2(deltaY, deltaX);
-            
-            const moveX = Math.cos(angle) * power * 8;
-            const moveY = Math.sin(angle) * power * 8;
-            
-            ball.style.transition = 'all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-            ball.style.transform = `translate(${moveX}px, -${moveY}px)`;
-            
-            setTimeout(() => {
+            static endDrag(e) {
+                const basketballData = gameState.gameData.basketball;
+                if (!basketballData.isDragging) return;
+                
+                gameState.updateGameData('basketball', { isDragging: false });
+                
+                const clientX = e.clientX || e.changedTouches[0].clientX;
+                const clientY = e.clientY || e.changedTouches[0].clientY;
+                
+                const deltaX = clientX - basketballData.startX;
+                const deltaY = basketballData.startY - clientY;
+                
+                BasketballGame.shootBall(deltaX, deltaY);
+            }
+
+            static shootBall(deltaX, deltaY) {
+                const ball = document.getElementById('basketballBall');
+                const basket = document.querySelector('.basket');
+                
+                if (!ball || !basket) return;
+                
+                const power = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY) / 5, 50);
+                const angle = Math.atan2(deltaY, deltaX);
+                
+                const moveX = Math.cos(angle) * power * 6;
+                const moveY = Math.sin(angle) * power * 6;
+                
+                // Performance: Use transform instead of changing position
+                ball.style.transform = `translate(${moveX}px, -${moveY}px)`;
+                
+                setTimeout(() => {
+                    BasketballGame.checkScore(ball, basket);
+                    setTimeout(() => BasketballGame.resetBall(), 500);
+                }, 1000);
+            }
+
+            static checkScore(ball, basket) {
                 const ballRect = ball.getBoundingClientRect();
                 const basketRect = basket.getBoundingClientRect();
                 
@@ -1033,88 +1648,107 @@
                     ballCenterY >= basketRect.top && 
                     ballCenterY <= basketRect.bottom + 20) {
                     
-                    basketballScore++;
-                    document.getElementById('basketballScore').textContent = basketballScore;
+                    const newScore = gameState.gameData.basketball.score + 1;
+                    gameState.updateGameData('basketball', { score: newScore });
+                    document.getElementById('basketballScore').textContent = newScore;
                     
-                    if (basketballScore >= 10) {
-                        clearInterval(basketballTimer);
+                    if (newScore >= 10) {
+                        clearInterval(gameState.gameData.basketball.timer);
                     }
                 }
+            }
+
+            static resetBall() {
+                const ball = document.getElementById('basketballBall');
+                if (ball) {
+                    ball.style.transform = '';
+                }
+            }
+
+            static startTimer() {
+                let timeLeft = 30;
+                document.getElementById('basketballTimer').textContent = timeLeft;
                 
-                setTimeout(() => {
-                    ball.style.transition = 'all 0.5s ease';
-                    resetBall();
-                }, 500);
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    document.getElementById('basketballTimer').textContent = timeLeft;
+                    
+                    if (timeLeft <= 0 || gameState.gameData.basketball.score >= 10) {
+                        clearInterval(timer);
+                        
+                        const won = gameState.gameData.basketball.score >= 10;
+                        const stats = {
+                            'Final Score': `${gameState.gameData.basketball.score}/10 hoops`,
+                            'Time Used': `${30 - timeLeft} seconds`,
+                            'Success Rate': `${Math.round((gameState.gameData.basketball.score / 10) * 100)}%`
+                        };
+                        
+                        UIManager.showGameResult('basketball', won, stats);
+                    }
+                }, 1000);
                 
-            }, 1000);
+                gameState.updateGameData('basketball', { timer });
+            }
         }
 
-        function initializeGlobalBasketballEvents() {
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('touchmove', drag);
-            document.addEventListener('mouseup', endDrag);
-            document.addEventListener('touchend', endDrag);
+        // Game Manager - Central coordinator
+        class GameManager {
+            static startQuiz() {
+                QuizGame.start();
+            }
+
+            static startPuzzle() {
+                PuzzleGame.start();
+            }
+
+            static startBasketball() {
+                BasketballGame.start();
+            }
         }
 
-        // PWA Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('sw.js')
-                    .then(function(registration) {
-                        console.log('✅ ServiceWorker registration successful');
-                        // Show install prompt after service worker is ready
-                        showInstallPrompt();
-                    })
-                    .catch(function(err) {
-                        console.log('❌ ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
+        // PWA Management
+        class PWAManager {
+            constructor() {
+                this.deferredPrompt = null;
+                this.initializeServiceWorker();
+                this.initializeInstallPrompt();
+            }
 
-        // PWA Install Prompt
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            console.log('📱 PWA install prompt available');
-            e.preventDefault();
-            deferredPrompt = e;
-            showInstallPrompt();
-        });
+            async initializeServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    try {
+                        const registration = await navigator.serviceWorker.register('sw.js');
+                        console.log('ServiceWorker registered successfully');
+                        this.showInstallButton();
+                    } catch (error) {
+                        console.log('ServiceWorker registration failed:', error);
+                    }
+                }
+            }
 
-        function showInstallPrompt() {
-            // Create install button if it doesn't exist
-            if (!document.getElementById('installBtn')) {
+            initializeInstallPrompt() {
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    this.deferredPrompt = e;
+                    this.showInstallButton();
+                });
+            }
+
+            showInstallButton() {
+                if (document.getElementById('installBtn')) return;
+                
                 const installBtn = document.createElement('button');
                 installBtn.id = 'installBtn';
+                installBtn.className = 'install-button';
                 installBtn.textContent = '📱 Install App';
-                installBtn.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: #28a745;
-                    color: white;
-                    border: none;
-                    padding: 10px 15px;
-                    border-radius: 8px;
-                    font-size: 14px;
-                    cursor: pointer;
-                    z-index: 1000;
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                `;
                 
                 installBtn.onclick = async () => {
-                    if (deferredPrompt) {
-                        deferredPrompt.prompt();
-                        const { outcome } = await deferredPrompt.userChoice;
-                        console.log(`User response to install prompt: ${outcome}`);
-                        deferredPrompt = null;
+                    if (this.deferredPrompt) {
+                        this.deferredPrompt.prompt();
+                        const { outcome } = await this.deferredPrompt.userChoice;
+                        console.log(`Install prompt outcome: ${outcome}`);
+                        this.deferredPrompt = null;
                         installBtn.remove();
-                    } else {
-                        // Show manual instructions
-                        alert(`To install this app:
-                        
-📱 Android Chrome: Menu (⋮) → "Add to Home screen"
-🍎 iOS Safari: Share button (📤) → "Add to Home Screen"
-💻 Desktop: Address bar install icon or Menu → "Install app"`);
                     }
                 };
                 
@@ -1122,51 +1756,74 @@
             }
         }
 
-        // Event Listeners
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && document.getElementById('registration').classList.contains('active')) {
-                registerPlayer();
+        // Email Download for Admin
+        class AdminManager {
+            constructor() {
+                this.initializeEmailDownload();
+                this.checkAdminAccess();
             }
+
+            initializeEmailDownload() {
+                document.getElementById('downloadEmailsBtn').onclick = () => {
+                    const emails = [...new Set(gameState.playersDB.map(p => p.email))];
+                    const content = emails.join('\n');
+                    const blob = new Blob([content], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'registered_emails.txt';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                };
+            }
+
+            checkAdminAccess() {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('isAdmin') === 'true') {
+                    document.getElementById('downloadEmailsBtn').style.display = 'inline-block';
+                }
+            }
+        }
+
+        // Initialize Application
+        const gameState = new GameState();
+        let registrationManager;
+        let pwaManager;
+        let adminManager;
+
+        // Performance: Initialize after DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🎮 Game Suite Initialized');
+            
+            // Initialize managers
+            registrationManager = new RegistrationManager();
+            pwaManager = new PWAManager();
+            adminManager = new AdminManager();
+            
+            // Make GameManager globally accessible for onclick handlers
+            window.GameManager = GameManager;
+            window.UIManager = UIManager;
+            window.QuizGame = QuizGame;
+            window.PuzzleGame = PuzzleGame;
+            window.BasketballGame = BasketballGame;
+            
+            console.log('✅ All systems ready');
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('App initialized!');
-            
-            initializeGlobalBasketballEvents();
-            
-            const originalStartBasketball = startBasketball;
-            window.startBasketball = function() {
-                originalStartBasketball();
-                setTimeout(() => {
-                    initializeBasketballEvents();
-                }, 100);
-            };
+        // Error handling
+        window.addEventListener('error', (e) => {
+            console.error('Application error:', e.error);
+            // Could send to error tracking service here
         });
 
-        // Email download functionality
-        document.getElementById('downloadEmailsBtn').onclick = function() {
-            let emails = gamePlayersDB.map(p => p.email);
-            try {
-                const stored = JSON.parse(localStorage.getItem('gamePlayers') || '[]');
-                emails = emails.concat(stored.map(p => p.email));
-            } catch(e){}
-            emails = [...new Set(emails)];
-            const content = emails.join('\n');
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'registered_emails.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        };
-
-        window.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('isAdmin') === 'true') {
-                document.getElementById('downloadEmailsBtn').style.display = 'inline-block';
+        // Performance monitoring
+        window.addEventListener('load', () => {
+            if ('performance' in window) {
+                const perfData = performance.getEntriesByType('navigation')[0];
+                console.log(`Page load performance: ${Math.round(perfData.loadEventEnd - perfData.fetchStart)}ms`);
             }
         });
     </script>
