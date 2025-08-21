@@ -900,7 +900,7 @@
                     <div class="game-icon">
                         <img src="ball-icon.png" alt="Ball Icon" width="60" height="60">
                     </div>
-                    <h3>More Hoops</h3>h
+                    <h3>More Hoops</h3>
                     <p>Score 5 hoops within the time limit</p>
                 </div>
             </div>
@@ -1723,7 +1723,7 @@ class BasketballGame {
             }, 200);
         }
         
-        if (newScore >= 10) {
+        if (newScore >= 5) {
             clearInterval(gameState.gameData.basketball.timer);
         }
     }
@@ -1823,9 +1823,7 @@ class BasketballGame {
 
             initializeInstallPrompt() {
                 window.addEventListener('beforeinstallprompt', (e) => {
-                    e.preventDefault();
                     this.deferredPrompt = e;
-                    this.showInstallButton();
                 });
             }
 
