@@ -20,7 +20,6 @@
     
     <!-- Preload critical resources -->
     <link rel="preload" href="quiz-config.js" as="script">
-    <link rel="preload" href="more.svg" as="image">
     
     <style>
         /* CSS Custom Properties for Performance */
@@ -861,7 +860,7 @@
                         <input type="checkbox" id="termsCheckbox" required>
                         <span class="terms-text">
                             I accept more.com's 
-                            <a href="#" class="terms-link" target="_blank" rel="noopener">Terms of use.</a>
+                            <a href="ΟΡΟΙ-TERMS-FIBA-GAMES-ON-COURT.pdf" class="terms-link" target="_blank" rel="noopener">Terms of use.</a>
                         </span>
                     </label>
                 </div>
@@ -953,7 +952,7 @@
             <div class="basketball-container">
                 <div class="basketball-game">
                     <div class="stats">
-                        <div>Score: <span id="basketballScore">0</span>/10</div>
+                        <div>Score: <span id="basketballScore">0</span>/5</div>
                         <div>Time: <span id="basketballTimer">30</span>s</div>
                     </div>
                     <div class="basket"></div>
@@ -1558,138 +1557,234 @@
             }
         }
 
-        class BasketballGame {
-            static start() {
-                UIManager.showScreen('basketballGame');
-                gameState.updateGameData('basketball', { score: 0, isDragging: false });
-                document.getElementById('basketballScore').textContent = '0';
-                BasketballGame.resetBall();
-                BasketballGame.startTimer();
-                BasketballGame.initializeEvents();
-            }
+class BasketballGame {
+    static start() {
+        UIManager.showScreen('basketballGame');
+        gameState.updateGameData('basketball', { 
+            score: 0, 
+            isDragging: false,
+            animationFrame: null,
+            ballPosition: { x: 60, y: 60 }
+        });
+        document.getElementById('basketballScore').textContent = '0';
+        BasketballGame.resetBall();
+        BasketballGame.startTimer();
+        BasketballGame.initializeEvents();
+    }
 
-            static initializeEvents() {
-                const ball = document.getElementById('basketballBall');
-                if (!ball) return;
+    static initializeEvents() {
+        const ball = document.getElementById('basketballBall');
+        if (!ball) return;
 
-                // Performance: Use passive event listeners where possible
-                ball.addEventListener('mousedown', BasketballGame.startDrag, { passive: false });
-                ball.addEventListener('touchstart', BasketballGame.startDrag, { passive: false });
-                
-                // Throttled move events for performance
-                const throttledMove = PerformanceOptimizer.throttle(BasketballGame.drag, 16); // 60fps
-                document.addEventListener('mousemove', throttledMove, { passive: true });
-                document.addEventListener('touchmove', throttledMove, { passive: true });
-                
-                document.addEventListener('mouseup', BasketballGame.endDrag, { passive: true });
-                document.addEventListener('touchend', BasketballGame.endDrag, { passive: true });
-            }
+        ball.addEventListener('mousedown', BasketballGame.startDrag, { passive: false });
+        ball.addEventListener('touchstart', BasketballGame.startDrag, { passive: false });
+        
+        document.addEventListener('mousemove', BasketballGame.drag, { passive: true });
+        document.addEventListener('touchmove', BasketballGame.drag, { passive: true });
+        
+        document.addEventListener('mouseup', BasketballGame.endDrag, { passive: true });
+        document.addEventListener('touchend', BasketballGame.endDrag, { passive: true });
+    }
 
-            static startDrag(e) {
-                e.preventDefault();
-                gameState.updateGameData('basketball', { 
-                    isDragging: true,
-                    startX: e.clientX || e.touches[0].clientX,
-                    startY: e.clientY || e.touches[0].clientY
-                });
-            }
+    static startDrag(e) {
+        e.preventDefault();
+        const basketballData = gameState.gameData.basketball;
+        
+        // Only allow dragging if ball is at starting position
+        if (basketballData.animationFrame) return;
+        
+        gameState.updateGameData('basketball', { 
+            isDragging: true,
+            startX: e.clientX || e.touches[0].clientX,
+            startY: e.clientY || e.touches[0].clientY,
+            startTime: Date.now()
+        });
+    }
 
-            static drag(e) {
-                const basketballData = gameState.gameData.basketball;
-                if (!basketballData.isDragging) return;
-                // Visual feedback could be added here
-            }
+    static drag(e) {
+        const basketballData = gameState.gameData.basketball;
+        if (!basketballData.isDragging) return;
+        
+        const currentX = e.clientX || e.touches[0].clientX;
+        const currentY = e.clientY || e.touches[0].clientY;
+        
+        // Show trajectory preview (optional visual feedback)
+        const deltaX = currentX - basketballData.startX;
+        const deltaY = basketballData.startY - currentY;
+        
+        // Small visual feedback during drag
+        const ball = document.getElementById('basketballBall');
+        if (ball && Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+            ball.style.transform = `scale(${Math.min(1.2, 1 + Math.sqrt(deltaX*deltaX + deltaY*deltaY)/200)})`;
+        }
+    }
 
-            static endDrag(e) {
-                const basketballData = gameState.gameData.basketball;
-                if (!basketballData.isDragging) return;
-                
-                gameState.updateGameData('basketball', { isDragging: false });
-                
-                const clientX = e.clientX || e.changedTouches[0].clientX;
-                const clientY = e.clientY || e.changedTouches[0].clientY;
-                
-                const deltaX = clientX - basketballData.startX;
-                const deltaY = basketballData.startY - clientY;
-                
-                BasketballGame.shootBall(deltaX, deltaY);
-            }
+    static endDrag(e) {
+        const basketballData = gameState.gameData.basketball;
+        if (!basketballData.isDragging) return;
+        
+        gameState.updateGameData('basketball', { isDragging: false });
+        
+        const clientX = e.clientX || e.changedTouches[0].clientX;
+        const clientY = e.clientY || e.changedTouches[0].clientY;
+        
+        const deltaX = clientX - basketballData.startX;
+        const deltaY = basketballData.startY - clientY;
+        
+        // More sensitive velocity calculation for better trajectory
+        const velocityX = deltaX * 4; // Horizontal velocity
+        const velocityY = deltaY * 10; // More sensitive upward motion
+        
+        BasketballGame.shootBall(velocityX, velocityY);
+    }
 
-            static shootBall(deltaX, deltaY) {
-                const ball = document.getElementById('basketballBall');
-                const basket = document.querySelector('.basket');
-                
-                if (!ball || !basket) return;
-                
-                const power = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY) / 5, 50);
-                const angle = Math.atan2(deltaY, deltaX);
-                
-                const moveX = Math.cos(angle) * power * 6;
-                const moveY = Math.sin(angle) * power * 6;
-                
-                // Performance: Use transform instead of changing position
-                ball.style.transform = `translate(${moveX}px, -${moveY}px)`;
-                
-                setTimeout(() => {
-                    BasketballGame.checkScore(ball, basket);
-                    setTimeout(() => BasketballGame.resetBall(), 500);
-                }, 1000);
-            }
+    static shootBall(velocityX, velocityY) {
+        const ball = document.getElementById('basketballBall');
+        const gameContainer = document.querySelector('.basketball-game');
+        if (!ball || !gameContainer) return;
+        
+        // Reset ball scale
+        ball.style.transform = 'scale(1)';
+        
+        // Physics constants - much gentler gravity
+        let gravity = 0.8; // Much weaker gravity for higher arc
+        const startX = 60;
+        const startY = 60;
+        
+        console.log(`velocityY: ${velocityY}`)
+        console.log(`velocityX: ${velocityX}`)
+        console.log(`**********************`)
+        
 
-            static checkScore(ball, basket) {
-                const ballRect = ball.getBoundingClientRect();
-                const basketRect = basket.getBoundingClientRect();
-                
-                const ballCenterX = ballRect.left + ballRect.width / 2;
-                const ballCenterY = ballRect.top + ballRect.height / 2;
-                
-                if (ballCenterX >= basketRect.left && 
-                    ballCenterX <= basketRect.right && 
-                    ballCenterY >= basketRect.top && 
-                    ballCenterY <= basketRect.bottom + 20) {
-                    
-                    const newScore = gameState.gameData.basketball.score + 1;
-                    gameState.updateGameData('basketball', { score: newScore });
-                    document.getElementById('basketballScore').textContent = newScore;
-                    
-                    if (newScore >= 10) {
-                        clearInterval(gameState.gameData.basketball.timer);
-                    }
+
+        let currentX = startX;
+        let currentY = startY;
+        let currentVelocityX = velocityX / 60; // Horizontal speed - NEVER changes
+        let currentVelocityY = velocityY / 80; // Vertical speed - affected by gravity
+        
+        const containerRect = gameContainer.getBoundingClientRect();
+        const ballSize = 40;
+        
+        let hasScored = false;
+        let ballPassed = false;
+        
+        function animate() {
+            // IMPORTANT: Only apply gravity to Y velocity, X velocity stays constant
+            
+            currentVelocityY -= gravity; // Full gravity effect while going down
+            currentVelocityX -= 0.005; // Slight horizontal deceleration to simulate air resistance
+
+            console.log(`currentVelocityY: ${currentVelocityY}`)
+            console.log(`currentVelocityX: ${currentVelocityX}`)
+
+            currentX += currentVelocityX; // Constant horizontal speed
+            currentY += currentVelocityY; // Changing vertical speed due to gravity
+            
+            // Update ball position (allow it to go outside horizontal bounds)
+            ball.style.left = `${currentX}px`;
+            ball.style.bottom = `${currentY}px`;
+
+            console.log(`X: ${currentX}px`)
+            console.log(`Y: ${currentY}px`)
+
+            // Check for scoring only when ball is within scoring area
+            if (!hasScored && currentX > 485 && currentX < 545) {
+                if (currentVelocityY < 0 && currentY > 320 && currentY < 380) {
+                    hasScored = true;
+                    BasketballGame.scoreBasket();
                 }
             }
-
-            static resetBall() {
-                const ball = document.getElementById('basketballBall');
-                if (ball) {
-                    ball.style.transform = '';
-                }
-            }
-
-            static startTimer() {
-                let timeLeft = 30;
-                document.getElementById('basketballTimer').textContent = timeLeft;
-                
-                const timer = setInterval(() => {
-                    timeLeft--;
-                    document.getElementById('basketballTimer').textContent = timeLeft;
-                    
-                    if (timeLeft <= 0 || gameState.gameData.basketball.score >= 10) {
-                        clearInterval(timer);
-                        
-                        const won = gameState.gameData.basketball.score >= 10;
-                        const stats = {
-                            'Final Score': `${gameState.gameData.basketball.score}/10 hoops`,
-                            'Time Used': `${30 - timeLeft} seconds`,
-                            'Success Rate': `${Math.round((gameState.gameData.basketball.score / 10) * 100)}%`
-                        };
-                        
-                        UIManager.showGameResult('basketball', won, stats);
-                    }
-                }, 1000);
-                
-                gameState.updateGameData('basketball', { timer });
+            
+            // Only stop animation when ball hits the ground (y <= 0)
+            if (currentY > 0) {
+                const animationFrame = requestAnimationFrame(animate);
+                gameState.updateGameData('basketball', { animationFrame });
+            } else {
+                // Ball has hit the ground, reset after brief delay
+                BasketballGame.resetBallAfterShot();
             }
         }
+        
+        const animationFrame = requestAnimationFrame(animate);
+        gameState.updateGameData('basketball', { animationFrame });
+    }
+
+    static scoreBasket() {
+        const newScore = gameState.gameData.basketball.score + 1;
+        gameState.updateGameData('basketball', { score: newScore });
+        document.getElementById('basketballScore').textContent = newScore;
+        
+        // Visual feedback for scoring
+        const ball = document.getElementById('basketballBall');
+        if (ball) {
+            ball.style.filter = 'drop-shadow(0 0 10px #00ff00)';
+            setTimeout(() => {
+                if (ball) ball.style.filter = '';
+            }, 200);
+        }
+        
+        if (newScore >= 10) {
+            clearInterval(gameState.gameData.basketball.timer);
+        }
+    }
+
+    static resetBallAfterShot() {
+        // Cancel any ongoing animation
+        if (gameState.gameData.basketball.animationFrame) {
+            cancelAnimationFrame(gameState.gameData.basketball.animationFrame);
+        }
+        
+        setTimeout(() => {
+            BasketballGame.resetBall();
+        }, 500);
+    }
+
+    static resetBall() {
+        const ball = document.getElementById('basketballBall');
+        if (ball) {
+            ball.style.left = '60px';
+            ball.style.bottom = '60px';
+            ball.style.transform = 'scale(1)';
+            ball.style.filter = '';
+        }
+        
+        gameState.updateGameData('basketball', { 
+            animationFrame: null,
+            ballPosition: { x: 60, y: 60 }
+        });
+    }
+
+    static startTimer() {
+        let timeLeft = 30;
+        document.getElementById('basketballTimer').textContent = timeLeft;
+        
+        const timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('basketballTimer').textContent = timeLeft;
+            
+            if (timeLeft <= 0 || gameState.gameData.basketball.score >= 5) {
+                clearInterval(timer);
+                
+                // Cancel any ongoing ball animation
+                if (gameState.gameData.basketball.animationFrame) {
+                    cancelAnimationFrame(gameState.gameData.basketball.animationFrame);
+                }
+                
+                const won = gameState.gameData.basketball.score >= 5;
+                const stats = {
+                    'Final Score': `${gameState.gameData.basketball.score}/5 hoops`,
+                    'Time Used': `${30 - timeLeft} seconds`,
+                    'Success Rate': `${Math.round((gameState.gameData.basketball.score / 5) * 100)}%`
+                };
+                
+                UIManager.showGameResult('basketball', won, stats);
+            }
+        }, 1000);
+        
+        gameState.updateGameData('basketball', { timer });
+    }
+}        
+
 
         // Game Manager - Central coordinator
         class GameManager {
