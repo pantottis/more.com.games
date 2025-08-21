@@ -326,23 +326,25 @@
         }
 
         .back-button {
-            background: #6B7280;
-            color: white;
+            background: transparent;
+            color: #6B7280;
             border: none;
-            padding: 12px 20px;
-            border-radius: var(--border-radius);
-            font-size: 14px;
-            font-weight: 500;
+            padding: 12px;
+            font-size: 24px;
             cursor: pointer;
             transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
         }
 
         .back-button:hover {
-            background: #4B5563;
-            transform: translateY(-2px);
+            background: rgba(107, 114, 128, 0.1);
+            color: #4B5563;
+            transform: none; /* Remove the translateY transform */
         }
 
         .game-title {
@@ -802,7 +804,6 @@
             cursor: pointer;
             z-index: 1000;
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-            display: none;
         }
     </style>
 </head>
@@ -909,7 +910,7 @@
         <!-- Quiz Game Screen -->
         <div id="quizGame" class="screen">
             <div class="game-header">
-                <button class="back-button" onclick="UIManager.backToSelection()">← Back</button>
+                <button class="back-button" onclick="UIManager.backToSelection()"><img src="back-icon.png" alt="back icon"/></button>
                 <h2 class="game-title">Quiz Challenge</h2>
             </div>
             
@@ -930,7 +931,7 @@
         <!-- Puzzle Game Screen -->
         <div id="puzzleGame" class="screen">
             <div class="game-header">
-                <button class="back-button" onclick="UIManager.backToSelection()">← Back</button>
+                <button class="back-button" onclick="UIManager.backToSelection()"><img src="back-icon.png" alt="back icon"/></button>
                 <h2 class="game-title">Sliding Puzzle</h2>
             </div>
             
@@ -945,7 +946,7 @@
         <!-- Basketball Game Screen -->
         <div id="basketballGame" class="screen">
             <div class="game-header">
-                <button class="back-button" onclick="UIManager.backToSelection()">← Back</button>
+                <button class="back-button" onclick="UIManager.backToSelection()"><img src="back-icon.png" alt="back icon"/></button>
                 <h2 class="game-title">Basketball Hoops</h2>
             </div>
             
@@ -1814,7 +1815,6 @@ class BasketballGame {
                     try {
                         const registration = await navigator.serviceWorker.register('sw.js');
                         console.log('ServiceWorker registered successfully');
-                        this.showInstallButton();
                     } catch (error) {
                         console.log('ServiceWorker registration failed:', error);
                     }
@@ -1824,6 +1824,7 @@ class BasketballGame {
             initializeInstallPrompt() {
                 window.addEventListener('beforeinstallprompt', (e) => {
                     this.deferredPrompt = e;
+                    this.showInstallButton();
                 });
             }
 
