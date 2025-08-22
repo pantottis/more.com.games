@@ -3,18 +3,83 @@
   "short_name": "Game Suite",
   "description": "A collection of tablet games including quiz, puzzle, and basketball",
   "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#667eea",
-  "theme_color": "#667eea",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "background_color": "#8B5DFF",
+  "theme_color": "#8B5DFF",
   "orientation": "landscape-primary",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%238B5DFF' rx='20'/><text x='50' y='65' text-anchor='middle' fill='white' font-size='60'>🎮</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%238B5DFF' rx='20'/><text x='50' y='65' text-anchor='middle' fill='white' font-size='60'>🎮</text></svg>",
       "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' fill='%238B5DFF' rx='36'/><text x='90' y='115' text-anchor='middle' fill='white' font-size='100'>🎮</text></svg>",
+      "sizes": "180x180",
       "type": "image/svg+xml"
     }
   ],
   "categories": ["games", "entertainment"],
   "lang": "en",
-  "dir": "ltr"
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1024 768'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%238B5DFF'/><stop offset='25%' stop-color='%2300D4FF'/><stop offset='75%' stop-color='%23FFE066'/><stop offset='100%' stop-color='%23FF6B8A'/></linearGradient></defs><rect width='1024' height='768' fill='url(%23bg)'/><rect x='112' y='84' width='800' height='600' fill='rgba(255,255,255,0.95)' rx='24'/><text x='512' y='150' text-anchor='middle' fill='%238B5DFF' font-size='32' font-weight='bold'>more.com</text><text x='512' y='200' text-anchor='middle' fill='%23666' font-size='16'>Welcome to the more.com game suite</text><rect x='200' y='280' width='180' height='200' fill='white' stroke='%23E5E7EB' stroke-width='2' rx='12'/><rect x='422' y='280' width='180' height='200' fill='white' stroke='%23E5E7EB' stroke-width='2' rx='12'/><rect x='644' y='280' width='180' height='200' fill='white' stroke='%23E5E7EB' stroke-width='2' rx='12'/><text x='290' y='340' text-anchor='middle' fill='%231F2937' font-size='16' font-weight='600'>Quiz Challenge</text><text x='512' y='340' text-anchor='middle' fill='%231F2937' font-size='16' font-weight='600'>FIBA Puzzle</text><text x='734' y='340' text-anchor='middle' fill='%231F2937' font-size='16' font-weight='600'>More Hoops</text></svg>",
+      "sizes": "1024x768",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "Game selection screen"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Quiz Challenge",
+      "short_name": "Quiz",
+      "description": "Start the quiz challenge game",
+      "url": "./index.html#quiz",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2300D4FF' rx='20'/><text x='50' y='65' text-anchor='middle' fill='white' font-size='60'>❓</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Puzzle Game",
+      "short_name": "Puzzle",
+      "description": "Start the sliding puzzle game",
+      "url": "./index.html#puzzle",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23FFE066' rx='20'/><text x='50' y='65' text-anchor='middle' fill='%23333' font-size='60'>🧩</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Basketball Game",
+      "short_name": "Hoops",
+      "description": "Start the basketball game",
+      "url": "./index.html#basketball",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23FF6B8A' rx='20'/><text x='50' y='65' text-anchor='middle' fill='white' font-size='60'>🏀</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
 }
