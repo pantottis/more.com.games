@@ -1792,6 +1792,20 @@ class BasketballGame {
         
         if (newScore >= 5) {
             clearInterval(gameState.gameData.basketball.timer);
+
+            // Cancel any ongoing ball animation
+            if (gameState.gameData.basketball.animationFrame) {
+                cancelAnimationFrame(gameState.gameData.basketball.animationFrame);
+            }
+            
+            // Show winning screen
+            const stats = {
+                'Final Score': `${newScore} hoops`,
+                'Time Used': `${30 - currentTime} seconds`,
+                'Success Rate': `${Math.round((newScore / 5) * 100)}%`
+            };
+            
+            UIManager.showGameResult('basketball', true, stats);
         }
     }
 
