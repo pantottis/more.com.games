@@ -584,18 +584,18 @@
 
         .ball {
             position: absolute;
-            width: 40px;
+            /* width: 40px;
             height: 40px;
-            background: radial-gradient(circle at 30% 30%, #FFA500, #FF8C00, #FF6347);
+            background: radial-gradient(circle at 30% 30%, #FFA500, #FF8C00, #FF6347); */
             border-radius: 50%;
             bottom: 60px;
             left: 60px;
             cursor: pointer;
             /*transition: var(--transition);*/
-            border: 3px solid #FF6347;
+            /* border: 3px solid #FF6347; */
             transform: translateZ(0);
             will-change: transform;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            /* box-shadow: 0 4px 12px rgba(0,0,0,0.3); */
         }
 
         .ball:hover {
@@ -627,6 +627,42 @@
             border-radius: 1px;
         }
 
+        /* Score Popup */
+        .score-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 16px;
+            font-size: 24px;
+            font-weight: 700;
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4);
+            z-index: 2000;
+            animation: popupAnimation 1s ease-out;
+        }
+
+        .clutch-popup {
+            background: linear-gradient(135deg, #FF6B8A, #FF8C00);
+            box-shadow: 0 8px 32px rgba(255, 107, 138, 0.4);
+        }
+
+        @keyframes popupAnimation {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            20% {
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
         .stats {
             position: absolute;
             top: 24px;
@@ -957,9 +993,8 @@
                         <div>Time: <span id="basketballTimer">30</span>s</div>
                     </div>
                     <div class="basket"></div>
-                    <div class="ball" id="basketballBall"></div>
+                    <div class="ball" id="basketballBall"><img src="ball-icon.png"  width="50" height="50"/> </div>
                 </div>
-                
                 <div class="basketball-instructions">
                     Click and drag the ball towards the basket!
                 </div>
@@ -1695,8 +1730,8 @@ class BasketballGame {
             console.log(`Y: ${currentY}px`)
 
             // Check for scoring only when ball is within scoring area
-            if (!hasScored && currentX > 485 && currentX < 545) {
-                if (currentVelocityY < 0 && currentY > 320 && currentY < 380) {
+            if (!hasScored && currentX > 430 && currentX < 490) {
+                if (currentVelocityY < 0 && currentY > 325 && currentY < 370) {
                     hasScored = true;
                     BasketballGame.scoreBasket();
                 }
@@ -1721,7 +1756,32 @@ class BasketballGame {
         gameState.updateGameData('basketball', { score: newScore });
         document.getElementById('basketballScore').textContent = newScore;
         
-        // Visual feedback for scoring
+        // Get current timer value
+        const timerElement = document.getElementById('basketballTimer');
+        const currentTime = parseInt(timerElement.textContent);
+        
+        // Create score popup
+        const popup = document.createElement('div');
+        popup.className = 'score-popup';
+        
+        if (currentTime < 10) {
+            popup.textContent = 'CLUTCH SCORE!';
+            popup.classList.add('clutch-popup');
+        } else {
+            popup.textContent = 'SCORE!';
+        }
+        
+        // Add popup to body
+        document.body.appendChild(popup);
+        
+        // Remove popup after 1 second
+        setTimeout(() => {
+            if (popup && popup.parentNode) {
+                popup.parentNode.removeChild(popup);
+            }
+        }, 1000);
+        
+        // Visual feedback for scoring ball
         const ball = document.getElementById('basketballBall');
         if (ball) {
             ball.style.filter = 'drop-shadow(0 0 10px #00ff00)';
