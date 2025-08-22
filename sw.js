@@ -3,7 +3,11 @@ const urlsToCache = [
   './',
   './index.html',
   './quiz-config.js',
-  './manifest.json'
+  './manifest.json',
+  './puzzle-icon.png',
+  './ball-icon.png',
+  './quiz-icon.png',
+  './back-icon.png'
 ];
 
 self.addEventListener('install', function(event) {
