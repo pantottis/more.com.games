@@ -1719,12 +1719,6 @@ class BasketballGame {
         const startX = 60;
         const startY = 60;
         
-        console.log(`velocityY: ${velocityY}`)
-        console.log(`velocityX: ${velocityX}`)
-        console.log(`**********************`)
-        
-
-
         let currentX = startX;
         let currentY = startY;
         let currentVelocityX = velocityX / 60; // Horizontal speed - NEVER changes
@@ -1742,18 +1736,12 @@ class BasketballGame {
             currentVelocityY -= gravity; // Full gravity effect while going down
             currentVelocityX -= 0.005; // Slight horizontal deceleration to simulate air resistance
 
-            console.log(`currentVelocityY: ${currentVelocityY}`)
-            console.log(`currentVelocityX: ${currentVelocityX}`)
-
             currentX += currentVelocityX; // Constant horizontal speed
             currentY += currentVelocityY; // Changing vertical speed due to gravity
             
             // Update ball position (allow it to go outside horizontal bounds)
             ball.style.left = `${currentX}px`;
             ball.style.bottom = `${currentY}px`;
-
-            console.log(`X: ${currentX}px`)
-            console.log(`Y: ${currentY}px`)
 
             // Check for scoring only when ball is within scoring area
             if (!hasScored && currentX > 430 && currentX < 490) {
