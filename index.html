@@ -379,6 +379,11 @@
                 padding: 24px 20px;
             }
         }
+        
+        .header-spacer {
+            width: 48px; /* Same width as the back button to balance the layout */
+            height: 48px;
+        }
 
         /* Enhanced Game Screen Styles */
         .game-header {
@@ -980,7 +985,12 @@
 
         <!-- Game Selection Screen -->
         <div id="gameSelection" class="screen">
-            <div class="more-logo"><img src="more.png" alt="more.com" class="more-logo"></div>
+            <div class="game-header">
+                <button class="back-button" onclick="UIManager.showScreen('registration')"><img src="back-icon.png" alt="back icon"/></button>
+                <div class="more-logo"><img src="more.png" alt="more.com" class="more-logo"></div>
+                <div class="header-spacer"></div> <!-- jst a small trick To balance layout (maybe?) -->
+            </div>
+
             <h1 class="game-selection-title">Hi, <span id="playerName" style="font-weight: 700;"></span></h1>
             <p class="game-selection-subtitle">Choose 1 game</p>
             
