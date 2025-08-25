@@ -4,6 +4,7 @@ const urlsToCache = [
   './index.html',
   './quiz-config.js',
   './manifest.json',
+  './more.png',
   './puzzle-icon.png',
   './ball-icon.png',
   './quiz-icon.png',
@@ -16,7 +17,9 @@ const urlsToCache = [
   './images/6.jpg',
   './images/7.jpg',
   './images/8.jpg',
-  './images/9.jpg'
+  './images/9.jpg',
+  './basket-hoop.png',
+  'https://www.more.com/gr-en/tickets/security-and-data-protection-policy/'
 ];
 
 self.addEventListener('install', function(event) {

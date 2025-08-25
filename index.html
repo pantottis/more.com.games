@@ -25,7 +25,7 @@
         
         /* CSS Custom Properties for Performance */
         :root {
-            --primary-gradient: linear-gradient(135deg, #8B5DFF 0%, #00D4FF 25%, #FFE066 75%, #FF6B8A 100%);
+            --primary-gradient: linear-gradient(135deg, #703EFF 0%, #FFFFFF 35%, #daff33 50%, #FFFFFF 65%,  #703EFF 100%);
             --primary-purple: #8B5DFF;
             --primary-cyan: #00D4FF;
             --primary-yellow: #FFE066;
@@ -129,6 +129,39 @@
             position: relative;
         }
 
+        .text-field select {
+            width: 100%;
+            padding: 16px 20px;
+            padding-right: 50px; /* Extra space for arrow */
+            border: 2px solid #E5E7EB;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            background: #FAFAFA;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 16px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            transition: var(--transition);
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .text-field select option {
+            padding: 10px;
+            font-size: 16px;
+        }
+        .text-field select:focus {
+            border-color: var(--primary-purple);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(139, 93, 255, 0.1);
+        }
+        /* .text-field select:focus {
+            border-color: var(--primary-purple);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(139, 93, 255, 0.1);
+        } */
+
         .text-field input {
             width: 100%;
             padding: 16px 20px;
@@ -162,6 +195,7 @@
             cursor: pointer;
             font-size: 14px;
             line-height: 1.5;
+            margin-bottom: 14px;
         }
 
         .checkbox-container input[type="checkbox"] {
@@ -172,7 +206,7 @@
             accent-color: var(--primary-purple);
         }
 
-        .terms-text {
+        .mand-terms-text {
             color: #6B7280;
         }
 
@@ -184,6 +218,13 @@
 
         .terms-link:hover {
             text-decoration: underline;
+        }
+
+        /* mandatory star */
+        .required-star {
+            color: #DC2626;
+            margin-left: 2px;
+            font-weight: 600;
         }
 
         /* Register Button */
@@ -585,25 +626,13 @@
 
         .basket {
             position: absolute;
-            top: 120px;
-            right: 60px;
-            width: 100px;
-            height: 50px;
-            background: linear-gradient(to bottom, #D2691E, #8B4513);
-            border-radius: 0 0 50px 50px;
-            border: 4px solid #654321;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            top: 70px;        /* Keep exact same positioning */
+            right: 10px;       /* Keep exact same positioning */
         }
 
-        .basket::before {
-            content: '';
-            position: absolute;
-            top: -4px;
-            left: 10px;
-            right: 10px;
-            height: 8px;
-            background: #654321;
-            border-radius: 4px;
+        .basket img {
+            object-fit: contain;
+            display: block;
         }
 
         .ball {
@@ -876,7 +905,7 @@
 
         <!-- Registration Screen -->
         <div id="registration" class="screen active">
-            <div class="more-logo">more.com</div>
+            <div class="more-logo"><img src="more.png" alt="more.com" class="more-logo"></div>
             <h2 class="registration-title">Welcome to the more.com game suite</h2>
             
             <div class="error-display" id="registrationError" role="alert"></div>
@@ -888,7 +917,7 @@
                             type="text" 
                             id="name" 
                             name="name"
-                            placeholder="Name" 
+                            placeholder="Full Name" 
                             required 
                             autocomplete="given-name"
                             aria-describedby="name-error"
@@ -906,15 +935,19 @@
                         >
                     </div>
                     <div class="text-field">
-                        <input 
-                            type="text" 
+                        <select 
                             id="country" 
                             name="country"
-                            placeholder="Country (of residence)" 
                             required 
                             autocomplete="country"
                             aria-describedby="country-error"
+                            placeholder="Country of residence" 
                         >
+                            <option value="" disabled selected>Country (of residence)</option>
+                            <option value="Greece">Greece</option>
+                            <option value="Cyprus">Cyprus</option>
+                            <option value="Other">Other</option>
+                        </select>
                     </div>
                 </div>
                 
@@ -923,7 +956,16 @@
                         <input type="checkbox" id="termsCheckbox" required>
                         <span class="terms-text">
                             I accept more.com's 
-                            <a href="ΟΡΟΙ-TERMS-FIBA-GAMES-ON-COURT.pdf" class="terms-link" target="_blank" rel="noopener">Terms of use.</a>
+                            <a href="ΟΡΟΙ-TERMS-FIBA-GAMES-ON-COURT.pdf" class="terms-link" target="_blank" rel="noopener">Terms of use.</a><span class="required-star">*</span>
+                        </span>
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="optTermsCheckbox">
+                        <span class="terms-text">
+                            I wish to receive newsletters, offers, and other promotional material from more.com, in accordance with the 
+                            <a href="https://www.more.com/gr-en/tickets/security-and-data-protection-policy/" class="terms-link" target="_blank" rel="noopener">Privacy Policy</a>. 
+                            I am aware that I can withdraw my consent at any time.
+                           
                         </span>
                     </label>
                 </div>
@@ -938,14 +980,14 @@
 
         <!-- Game Selection Screen -->
         <div id="gameSelection" class="screen">
-            <div class="more-logo">more.com</div>
+            <div class="more-logo"><img src="more.png" alt="more.com" class="more-logo"></div>
             <h1 class="game-selection-title">Hi, <span id="playerName" style="font-weight: 700;"></span></h1>
             <p class="game-selection-subtitle">Choose 1 game</p>
             
             <div class="game-selection">
                 <div class="game-card" onclick="GameManager.startQuiz()">
                     <div class="game-icon">
-                        <img src="quiz-icon.png" alt="Quiz Icon" width="60" height="60">
+                        <img src="quiz-icon.png" alt="Quiz Icon" width="80" height="80">
                     </div>
                     <h3>Quiz challenge</h3>
                     <p>Answer all 5 questions correctly</p>
@@ -953,7 +995,7 @@
                 
                 <div class="game-card" onclick="GameManager.startPuzzle()">
                     <div class="game-icon">
-                        <img src="puzzle-icon.png" alt="Puzzle Icon" width="60" height="60">
+                        <img src="puzzle-icon.png" alt="Puzzle Icon" width="80" height="80">
                     </div>
                     <h3>FIBA Puzzle master</h3>
                     <p>Solve the sliding puzzle in time</p>
@@ -961,7 +1003,7 @@
                 
                 <div class="game-card" onclick="GameManager.startBasketball()">
                     <div class="game-icon">
-                        <img src="ball-icon.png" alt="Ball Icon" width="60" height="60">
+                        <img src="ball-icon.png" alt="Ball Icon" width="80" height="80">
                     </div>
                     <h3>More Hoops</h3>
                     <p>Score 5 hoops within the time limit</p>
@@ -1018,7 +1060,7 @@
                         <div>Score: <span id="basketballScore">0</span>/5</div>
                         <div>Time: <span id="basketballTimer">30</span>s</div>
                     </div>
-                    <div class="basket"></div>
+                    <div class="basket"><img src="basket-hoop.png" alt="Basketball Hoop" width="250" height="150"></div>
                     <div class="ball" id="basketballBall"><img src="ball-icon.png"  width="50" height="50"/> </div>
                 </div>
                 <div class="basketball-instructions">
@@ -1249,23 +1291,28 @@
             initializeValidation() {
                 const inputs = this.form.querySelectorAll('input[required]');
                 const termsCheckbox = document.getElementById('termsCheckbox');
+                const optCheckbox = document.getElementById('optTermsCheckbox');
                 
                 // Ensure button starts disabled
                 this.submitButton.disabled = true;
                 this.submitButton.style.opacity = '0.5';
                 this.submitButton.style.cursor = 'not-allowed';
                 
-                // Debounced validation for performance
-                const debouncedValidation = PerformanceOptimizer.debounce(() => {
+                // Different debounce delays for different interactions
+                const inputValidation = PerformanceOptimizer.debounce(() => {
                     this.validateForm();
-                }, 100);
+                }, 150); // Longer delay for typing
+                
+                const checkboxValidation = PerformanceOptimizer.debounce(() => {
+                    this.validateForm();
+                }, 25); // Much shorter delay for checkboxes
 
                 inputs.forEach(input => {
-                    input.addEventListener('input', debouncedValidation);
-                    input.addEventListener('blur', debouncedValidation);
+                    input.addEventListener('input', inputValidation);
+                    input.addEventListener('blur', () => this.validateForm()); // Immediate on blur
                 });
 
-                termsCheckbox.addEventListener('change', debouncedValidation);
+                termsCheckbox.addEventListener('change', checkboxValidation);
                 this.form.addEventListener('submit', (e) => this.handleSubmit(e));
                 
                 // Run initial validation
@@ -1313,7 +1360,9 @@
                 const playerData = {
                     name: formData.get('name').trim(),
                     email: formData.get('email').trim(),
-                    country: formData.get('country').trim()
+                    country: formData.get('country').trim(),
+                    termsAccepted: document.getElementById('termsCheckbox').checked,
+                    optionalTermsAccepted: document.getElementById('optTermsCheckbox').checked
                 };
 
                 if (!this.isValidEmail(playerData.email)) {
@@ -1731,10 +1780,8 @@ class BasketballGame {
         let ballPassed = false;
         
         function animate() {
-            // IMPORTANT: Only apply gravity to Y velocity, X velocity stays constant
-            
-            currentVelocityY -= gravity; // Full gravity effect while going down
-            currentVelocityX -= 0.005; // Slight horizontal deceleration to simulate air resistance
+            currentVelocityY -= gravity; // Gravity effect while going down eventually
+            currentVelocityX -= 0.005;   // Slight horizontal deceleration to simulate air resistance
 
             currentX += currentVelocityX; // Constant horizontal speed
             currentY += currentVelocityY; // Changing vertical speed due to gravity
@@ -1953,14 +2000,18 @@ class BasketballGame {
 
             initializeEmailDownload() {
                 document.getElementById('downloadEmailsBtn').onclick = () => {
-                    const emails = [...new Set(gameState.playersDB.map(p => p.email))];
-                    const content = emails.join('\n');
-                    const blob = new Blob([content], { type: 'text/plain' });
+                    const header = 'Email,Country,Terms Accepted,Optional Terms Accepted';
+                    const playerLines = gameState.playersDB.map(player => {
+                        return `${player.email},${player.country},${player.termsAccepted ? 'Yes' : 'No'},${player.optionalTermsAccepted ? 'Yes' : 'No'}`;
+                    });
+                    
+                    const content = [header, ...playerLines].join('\n');
+                    const blob = new Blob([content], { type: 'text/csv' });
                     const url = URL.createObjectURL(blob);
                     
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'registered_emails.txt';
+                    a.download = 'registered_users.csv';
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
