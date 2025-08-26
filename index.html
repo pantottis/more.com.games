@@ -1597,7 +1597,7 @@
                     
                     if (PuzzleGame.isSolved()) {
                         clearInterval(puzzleData.timer);
-                        const timeUsed = 40 - puzzleData.timeLeft;
+                        const timeUsed = 45 - puzzleData.timeLeft;
                         UIManager.showGameResult('puzzle', true, {
                             'Time Used': `${timeUsed} seconds`,
                             'Time Remaining': `${puzzleData.timeLeft} seconds`
@@ -1664,7 +1664,7 @@
                         clearInterval(timer);
                         UIManager.showGameResult('puzzle', false, {
                             'Result': 'Time expired',
-                            'Time Limit': '40 seconds'
+                            'Time Limit': '45 seconds'
                         });
                     }
                 }, 1000);
@@ -1679,7 +1679,7 @@
                 }
                 PuzzleGame.initialize();
                 PuzzleGame.startTimer();
-                document.getElementById('puzzleTimer').textContent = `Time: 40s`;
+                document.getElementById('puzzleTimer').textContent = `Time: 45s`;
             }
         }
 
