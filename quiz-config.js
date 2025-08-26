@@ -12,7 +12,7 @@ window.QUIZ_CONFIG = {
         },
         {
             question: "Which of the following countries is NOT included in Group C of the FIBA EuroBasket qualifiers taking place in Cyprus? ",
-            options: ["Greece", "Bosnia and Herzegovina", "Germany", "Happy Fox"],
+            options: ["Greece", "Bosnia and Herzegovina", "Germany", "Italy"],
             correct: 2
         },
         {
