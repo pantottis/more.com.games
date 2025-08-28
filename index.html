@@ -965,7 +965,7 @@
                         </span>
                     </label>
                     <label class="checkbox-container">
-                        <input type="checkbox" id="optTermsCheckbox">
+                        <input type="checkbox" id="optTermsCheckbox" checked>
                         <span class="terms-text">
                             I wish to receive newsletters, offers, and other promotional material from more.com, in accordance with the 
                             <a href="https://www.more.com/gr-en/tickets/security-and-data-protection-policy/" class="terms-link" target="_blank" rel="noopener">Privacy Policy</a>. 
@@ -1182,6 +1182,16 @@
         // UI Management
         class UIManager {
             static showScreen(screenId) {
+
+                // Clean up form data
+                if (screenId === 'registration') {
+                    document.getElementById('name').value = "";
+                    document.getElementById('email').value= "";
+                    document.getElementById('country').value= "";
+                    document.getElementById('termsCheckbox').checked = false;
+                    document.getElementById('optTermsCheckbox').checked = true;
+                }
+
                 // Performance: Batch DOM operations
                 const screens = document.querySelectorAll('.screen');
                 const targetScreen = document.getElementById(screenId);
